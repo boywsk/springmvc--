@@ -1,0 +1,59 @@
+package cn.com.gome.manage.global;
+
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.com.gome.manage.utils.PropertiesUtils;
+
+/**
+ * 存放文件配置信息或者全局变量配置信息
+ */
+public class Global {
+	static Logger logger = LoggerFactory.getLogger(Global.class);
+
+//	public static String APP_ID = "TEST_APP_ID";
+//
+//	public static String APP_KEY = "TEST_APP_KEY";
+
+	public static int REDIS_INDEX;
+
+	// 聊天消息分库模值
+	public static int MSG_DB_MODULO;
+	// 聊天消息分表模值
+	public static int MSG_TABLE_MODULO;
+	// 服务器资源redis选择db
+	public static int SERVER_RESOURCE_REDIS_INDEX;
+	
+	public static String CENTER_IM_API_URL;
+	
+	public static String REDIS_CLUSTER_ADDRESS;
+
+	static {
+		logger.info("[load static]start...");
+		Properties properties = PropertiesUtils.LoadProperties("/config.properties");
+		REDIS_INDEX = Integer.parseInt(properties.getProperty("user.redis.index"));
+		MSG_DB_MODULO = Integer.parseInt(properties.getProperty("msg.db.modulo"));
+		MSG_TABLE_MODULO = Integer.parseInt(properties.getProperty("msg.table.modulo"));
+		SERVER_RESOURCE_REDIS_INDEX = Integer.parseInt(properties.getProperty("server.resource.redis.index"));
+		CENTER_IM_API_URL = properties.getProperty("centerImApiUrl");
+		REDIS_CLUSTER_ADDRESS = properties.getProperty("redis.cluster.address");
+		logger.info("[load static]end...");
+	}
+
+	// 服务类型
+	public static enum SERVER_TYPE {
+		ALL(0), // 所有
+		GATEWAY(1), // 接入
+		LOGIC(2), // 逻辑
+		API(3), // api
+		FILE(4); // 文件
+
+		public int value;
+
+		private SERVER_TYPE(int value) {
+			this.value = value;
+		}
+	}
+}

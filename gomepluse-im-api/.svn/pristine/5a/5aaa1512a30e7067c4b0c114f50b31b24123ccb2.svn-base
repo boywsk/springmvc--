@@ -1,0 +1,24 @@
+#开发环境配置
+#mq配置
+mq.host=10.125.3.11
+mq.port=5672
+mq.virtualHost=push
+mq.username=gome
+mq.password=gome
+mq.queueName=push-queue
+
+# redis配置
+redis_cluster_ip_ports=10.125.3.11:7000,10.125.3.21:7000,10.125.3.31:7000
+
+#mysql 配置
+jdbc.url=jdbc:mysql://10.125.31.220:3306/gomeplus_im?useUnicode=true&amp;characterEncoding=utf-8
+jdbc.username=admin_develop
+jdbc.password=admin6E85E1357Adev
+
+#mongondb库名  10.125.3.11 10.125.3.21  10.125.3.31 :30000
+mongodb.dbName=db_im
+# mongodb配置
+host=10.125.3.11
+port=30000
+connectionsPerHost=300
+connectionMultiplier=5000

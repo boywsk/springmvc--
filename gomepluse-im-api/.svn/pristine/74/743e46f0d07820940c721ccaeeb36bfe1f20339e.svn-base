@@ -1,0 +1,23 @@
+#mq配置
+mq.host=10.125.236.22
+mq.port=5672
+mq.virtualHost=/im-sdk-virtual
+mq.username=imsdk
+mq.password=imsdk
+mq.queueName=ush-queue-sdk-test
+
+#QRCode conf 二维码相关
+qrcode_image_height=300
+qrcode_image_weight=300
+qrcode_url1=http://localhost:8080?type=%s&id=%s
+qrcode_url2=http://localhost:8080?type=%s&id=%s
+
+#聊天消息分库模值
+msg.db.modulo=64
+#聊天消息分表模值
+msg.table.modulo=2
+
+#mysql 配置
+jdbc.url=jdbc:mysql://10.69.203.241:3306/gomeplus_im?useUnicode=true&amp;characterEncoding=utf-8
+jdbc.username=im_dbuser
+jdbc.password=R1VnDzCN

@@ -1,0 +1,57 @@
+package com.gomeplus.im.api.test;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gomeplus.im.api.utils.PropertiesUtils;
+
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPoolConfig;
+
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+/**
+ * Created by wangshikai on 2016/5/9.
+ */
+public class JedisClusterClientTest {
+    private static Logger log = LoggerFactory.getLogger(JedisClusterClientTest.class);
+
+    public static JedisClusterClientTest INSTANCE = new JedisClusterClientTest();
+
+    private static JedisCluster jedisCluster = null;
+    private static String cluster_ip_ports = "";
+    private JedisClusterClientTest(){
+    }
+    static {
+        if (jedisCluster == null) {
+            try {
+                Set<HostAndPort> jedisClusterNodes = new HashSet<>();
+                cluster_ip_ports = "10.125.3.11:7000,10.125.3.21:7000,10.125.3.31:7000";
+                String[] ipArr = cluster_ip_ports.split(",");
+                for(String ipPort : ipArr){
+                    String[] hostPort = ipPort.split(":");
+                    String host = hostPort[0];
+                    int port = Integer.parseInt(hostPort[1]);
+                    jedisClusterNodes.add(new HostAndPort(host, port));
+                }
+                JedisPoolConfig config = new JedisPoolConfig();
+                config.setMaxIdle(5);
+                config.setMaxTotal(50);
+                config.setMinIdle(5);
+                config.setMaxWaitMillis(1000 * 10);
+                config.setTestOnBorrow(true);
+                jedisCluster = new JedisCluster(jedisClusterNodes,config);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error(e.getMessage());
+            }
+        }
+    }
+
+    public JedisCluster getJedisCluster() {
+        return jedisCluster;
+    }
+}

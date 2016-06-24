@@ -1,0 +1,176 @@
+package com.gomeplus.im.api.model;
+
+import java.io.Serializable;
+
+/**
+ *
+ * 用户信息
+ * Created by wangshikai on 2016/6/1.
+ */
+public class User implements Serializable {
+
+	private long id;
+	private long phoneNumber;
+	private String userName;
+	private long userNameHashId;
+	private String password;
+	private String nickName;
+	private String avatar;
+	private int gender;  //  1:男  2:女
+	private String region;
+	private long birthday;
+	private String autograph;//签名
+	private long createTime;
+	private long updateTime;
+	private String token;
+	private long tokenValidity;
+	private String hardwareIndentifier;//硬件信息
+	private String osIdentifier;//软件信息
+	private String deviceId;//设备号
+	
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(long phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public long getUserNameHashId() {
+		return userNameHashId;
+	}
+
+	public void setUserNameHashId(long userNameHashId) {
+		this.userNameHashId = userNameHashId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public int getGender() {
+		return gender;
+	}
+
+	public void setGender(int gender) {
+		this.gender = gender;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getAutograph() {
+		return autograph;
+	}
+
+	public void setAutograph(String autograph) {
+		this.autograph = autograph;
+	}
+
+	public long getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
+	}
+
+	public long getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(long updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public long getTokenValidity() {
+		return tokenValidity;
+	}
+
+	public void setTokenValidity(long tokenValidity) {
+		this.tokenValidity = tokenValidity;
+	}
+
+	public long getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(long birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getHardwareIndentifier() {
+		return hardwareIndentifier;
+	}
+
+	public void setHardwareIndentifier(String hardwareIndentifier) {
+		this.hardwareIndentifier = hardwareIndentifier;
+	}
+
+	public String getOsIdentifier() {
+		return osIdentifier;
+	}
+
+	public void setOsIdentifier(String osIdentifier) {
+		this.osIdentifier = osIdentifier;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+
+}

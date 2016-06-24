@@ -1,0 +1,150 @@
+package com.gomeplus.im.api.test;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.print.DocFlavor.STRING;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+
+import com.gomeplus.im.api.utils.Md5Util;
+
+public class UserTest extends ApiTester {
+
+	public static final String USER = "/user";
+	public static final String TEST = "/test";
+
+	public static final String APP_ID="gomeplus_im_dev";
+	public static final String APP_ID_URL="?appId="+APP_ID;
+	
+	@Test
+	public void registerTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userName", "liuzhenhuan10");
+		params.put("phoneNumber", 12345678910L);
+		params.put("password", "123456");
+
+		String result = post(GOMEPLUS_IM_API + USER + "/registerUser.json"+APP_ID_URL,
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/registerUser.json"+APP_ID_URL, result);
+	}
+
+	@Test
+	public void registerTest2() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userName", "liuzhenhuan6");
+		params.put("phoneNumber", 12345678906L);
+		params.put("password", "123456");
+
+		String result = get(GOMEPLUS_IM_API + USER + "/registerUser.json",
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/registerUser.json", result);
+	}
+
+	@Test
+	public void loginTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("phoneNumber", 12345678910L);
+		params.put("password", "123456");
+
+		String result = post(GOMEPLUS_IM_API + USER + "/login.json"+APP_ID_URL, params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/login.json"+APP_ID, result);
+	}
+	
+	private String getURLParams(String token,long userId){
+		long timestamp=System.currentTimeMillis();
+		String appId=APP_ID;
+		String signature=appId+"|"+token+"|"+userId+"|"+timestamp;
+		try {
+			signature=Md5Util.md5Encode(signature);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		String urlParams=APP_ID_URL+"&userId=21&signature="+signature+"&timestamp="+timestamp;
+		return urlParams;
+	}
+	@Test
+	public void getUserInfoTest() throws Exception {
+		//{"message":"登录成功","code":0,"data":{"birthday":0,"phoneNumber":12345678910,
+		//"gender":0,"nickName":null,"autograph":null,"tokenValidity":1466472587915,"id":21,
+		//"avatar":null,"userName":"liuzhenhuan10","region":null,"token":"69cf40b4bb2a4f6db32e049eed2119cc"}}】
+		String appId=APP_ID;
+		String token="69cf40b4bb2a4f6db32e049eed2119cc";
+		String userId="21";
+		long timestamp=System.currentTimeMillis();
+		String signature=appId+"|"+token+"|"+userId+"|"+timestamp;
+		signature=Md5Util.md5Encode(signature);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", 1);
+		String result = post(GOMEPLUS_IM_API + USER + "/getUserInfo.json"+APP_ID_URL+"&userId=21&signature="+signature+"&timestamp="+timestamp,
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/getUserInfo.json"+APP_ID_URL+"&userId=21&signature="+signature+"&timestamp="+timestamp, result);
+	}
+
+	@Test
+	public void updateUserInfoTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		String token="69cf40b4bb2a4f6db32e049eed2119cc";
+		long userId=21;
+		String urlParams = getURLParams(token, userId);
+//		params.put("nickName", "刘贞环贞环昵称2");
+		params.put("gender", "2");
+		String result = post(GOMEPLUS_IM_API + USER + "/updateUserInfo.json"+urlParams,
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/updateUserInfo.json"+urlParams, result);
+	}
+	@Test
+	public void findUserInfoTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		String token="69cf40b4bb2a4f6db32e049eed2119cc";
+		long userId=21;
+		String urlParams = getURLParams(token, userId);
+//		params.put("nickName", "刘贞环贞环昵称2");
+		params.put("keyWord", "liu");
+		String result = post(GOMEPLUS_IM_API + USER + "/findUser.json"+urlParams,
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/findUser.json"+urlParams, result);
+	}
+
+	
+	
+	
+	@Test
+	public void hashCodeReGenerateTest() {
+		long count = Long.MAX_VALUE;
+		Map<String, String> hashCodeMap = new HashMap<String, String>();
+		for (int i = 0; i < count; i++) {
+			String uuid = UUID.randomUUID().toString();
+			hashCodeMap.put(uuid, uuid.hashCode() + "");
+		}
+
+		for (String uuid : hashCodeMap.keySet()) {
+			for (String uuid2 : hashCodeMap.keySet()) {
+				if (StringUtils.equals(uuid, uuid2)) {
+					continue;
+				}
+				if (StringUtils.equals(hashCodeMap.get(uuid),
+						hashCodeMap.get(uuid2))) {
+					System.out.println("uuid:" + uuid + ",uuid2:" + uuid2);
+
+				}
+
+			}
+		}
+
+	}
+
+	@Test
+	public void findUserTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("keyWord", " ss ");
+
+		String result = get(GOMEPLUS_IM_API + USER + "/findUser.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/findUser.json", result);
+
+	}
+
+}

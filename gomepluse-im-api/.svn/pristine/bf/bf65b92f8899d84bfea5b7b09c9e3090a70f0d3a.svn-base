@@ -1,0 +1,18 @@
+package com.gomeplus.im.api.service;
+
+
+import com.gomeplus.im.api.model.User;
+import com.gomeplus.im.api.request.response.ResultModel;
+
+public interface UserService {
+	
+	public ResultModel<Object> saveUser(User user);
+	
+	public ResultModel<Object> updateUserTokenInfo(User user);
+	
+	public ResultModel<Object> getUserInfo(User user);
+
+	public ResultModel<Object> login(User user);
+	
+	public ResultModel<Object> findUser(String keyWord);
+}

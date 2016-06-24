@@ -1,0 +1,92 @@
+body {
+	margin: 0;
+}
+/* 顶部 */
+.l-topmenu {
+	margin: 0;
+	padding: 0;
+	height: 31px;
+	line-height: 31px;
+	background: url('../images/top.jpg') repeat-x bottom;
+	position: relative;
+	border-top: 1px solid #1D438B;
+}
+
+.l-topmenu-logo {
+	color: #E7E7E7;
+	padding-left: 35px;
+	line-height: 26px;
+	background: url('../images/topicon.png') no-repeat 10px 5px;
+}
+
+.l-topmenu-welcome {
+	position: absolute;
+	height: 24px;
+	line-height: 24px;
+	right: 30px;
+	top: 2px;
+	color: #070A0C;
+}
+
+.l-topmenu-welcome a {
+	color: #E7E7E7;
+	text-decoration: underline
+}
+
+.body-gray2014 #framecenter {
+	margin-top: 3px;
+}
+
+.viewsourcelink {
+	background: #B3D9F7;
+	display: block;
+	position: absolute;
+	right: 10px;
+	top: 3px;
+	padding: 6px 4px;
+	color: #333;
+	text-decoration: underline;
+}
+
+.viewsourcelink-over {
+	background: #81C0F2;
+}
+
+.l-topmenu-welcome label {
+	color: white;
+}
+
+h4 {
+	margin: 20px;
+}
+
+#accordion1 {
+	width: 200px;
+	overflow: hidden;
+}
+
+#sub-menu {
+	display: block;
+}
+
+#sub-menu li {
+	border-bottom: 1px solid #ED9F9F; /* 添加标签<li>的下划线*/
+}
+
+#sub-menu li a {
+	display: block; /* 区块显示*/
+	padding: 5px 5px 5px 0.5em;
+	text-decoration: none;
+	border-left: 12px solid #1E3E7F; /* 左边的粗红边*/
+	border-right: 1px solid #711515; /* 右侧阴影*/
+}
+
+#sub-menu li a:link,#sub-menu li a:visited /* 超链接正常状态、被访问过的状态*/ {
+	background-color: #5C5D62; /* 设置背景色*/
+	color: #FFFFFF; /* 设置文字颜色*/
+}
+
+#sub-menu li a:hover /*鼠标经过时*/ {
+	background-color: #990020; /* 改变背景色*/
+	color: #ffff00; /* 改变文字颜色*/
+}

@@ -1,0 +1,121 @@
+package com.gomeplus.im.api.service;
+
+
+import com.gomeplus.im.api.request.ReqGroup;
+import com.gomeplus.im.api.request.response.ResultModel;
+
+public interface GroupService {
+	
+	/**
+	 * 创建群组
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> addGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 加入群
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> joinGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 邀请加入群
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> inviteGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 退群
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> quitGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 踢人
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> kickGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 修改群信息
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> editGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 解散群
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> disbandGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 审核群成员
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> auditMember(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 获取群组信息
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> getGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 获取群组列表信息
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> listGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 修改群成员备注
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> editMemberMark(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 获取群组成员
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> listGroupMember(ReqGroup reqGroup,String appId,long userId);
+	
+//	/**
+//	 * 添加群组管理员
+//	 * @param reqGroup
+//	 * @return
+//	 */
+//	ResultModel<Object> addManager(ReqGroup reqGroup,String appId);
+//
+//	/**
+//	 * 删除群组管理员
+//	 * @param reqGroup
+//	 * @return
+//	 */
+//	ResultModel<Object> delManager(ReqGroup reqGroup,String appId);
+	
+	/**
+	 * 屏蔽群消息
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> shieldGroup(ReqGroup reqGroup,String appId,long userId);
+	
+	/**
+	 * 设置群置顶
+	 * @param reqGroup
+	 * @return
+	 */
+	ResultModel<Object> sickiesGroup(ReqGroup reqGroup,String appId,long userId);
+
+}

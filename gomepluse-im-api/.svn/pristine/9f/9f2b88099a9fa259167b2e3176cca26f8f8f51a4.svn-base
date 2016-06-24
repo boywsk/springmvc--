@@ -1,0 +1,39 @@
+package com.gomeplus.im.api.service;
+
+
+import com.gomeplus.im.api.request.ReqFriendGroup;
+import com.gomeplus.im.api.request.response.ResultModel;
+
+public interface FriendGroupService {
+	
+	/**
+	 * 发布朋友圈信息
+	 * @param req
+	 * @return
+	 */
+	public ResultModel<Object> addFriendGroup(ReqFriendGroup req);
+	
+	/**
+	 * 删除朋友圈信息
+	 * @param req
+	 * @return
+	 */
+	public ResultModel<Object> delFriendGroup(ReqFriendGroup req);
+
+
+	/**
+	 * 查看用户自己发布过的朋友圈信息
+	 * @param req
+	 * @return
+	 */
+	public ResultModel<Object> personalFriendGroup(ReqFriendGroup req);
+
+	/**
+	 * 查看用户所有朋友发布的朋友圈信息
+	 * @param req
+	 * @return
+	 */
+	public ResultModel<Object> listFriendGroup(ReqFriendGroup req);
+
+
+}

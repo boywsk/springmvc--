@@ -1,0 +1,55 @@
+package com.gomeplus.im.api.request;
+
+import java.io.Serializable;
+
+/**
+ * 好友业务
+ * @author lijinpeng
+ *
+ */
+public class ReqFriend implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private long uid; // 发起者用户id，申请用户的id
+	private long friendUid; // 好友用户id，被申请用户的id
+	private String nickName;// 发起者用户昵称
+	private String friendNickName;//添加的好友昵称
+//	private String content;// 内容
+	private String mark; // 好友标注和备注，uid 对 friendUid 的备注
+	private int status;
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public long getUid() {
+		return uid;
+	}
+	public void setUid(long uid) {
+		this.uid = uid;
+	}
+	public long getFriendUid() {
+		return friendUid;
+	}
+	public void setFriendUid(long friendUid) {
+		this.friendUid = friendUid;
+	}
+	public String getNickName() {
+		return nickName;
+	}
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+	public String getFriendNickName() {
+		return friendNickName;
+	}
+	public void setFriendNickName(String friendNickName) {
+		this.friendNickName = friendNickName;
+	}
+	public String getMark() {
+		return mark;
+	}
+	public void setMark(String mark) {
+		this.mark = mark;
+	}
+}

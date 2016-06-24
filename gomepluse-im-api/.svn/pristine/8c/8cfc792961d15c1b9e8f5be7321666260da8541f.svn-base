@@ -1,0 +1,25 @@
+package com.gomeplus.im.api.dao;
+
+import java.util.List;
+
+import com.gomeplus.im.api.model.FriendGroup;
+
+/**
+ * 好友分组
+ * Created by wangshikai on 2016/2/22.
+ */
+public interface FriendGroupMapper {
+	
+    public void saveFriendGroup(FriendGroup friendGroup);
+
+    public void updateFriendGroupById(FriendGroup friendGroup);
+    
+    public void deleteFriendGroupById(long id);
+    
+    public void deleteFriendGroupByUserId(long userId);
+    
+    public FriendGroup getFriendGroupById(long id);
+    
+    public List<FriendGroup> getFriendGroupByUserId(long userId);
+    
+}

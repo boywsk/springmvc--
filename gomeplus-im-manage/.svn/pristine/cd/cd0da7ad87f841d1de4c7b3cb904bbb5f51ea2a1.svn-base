@@ -1,0 +1,24 @@
+package com.gomeplus.im.manage.dao;
+
+
+
+import com.gomeplus.im.manage.model.User;
+
+import java.util.Map;
+
+
+/**
+ * gomeplus_im 用户中心 用户数据
+ */
+public interface UserMapper {
+	
+
+	public User getUserInfo(long id);
+
+	public User getUserInfoByPhoneNumber(long phoneNumber);
+
+	public User getUserInfoByName(String userName);
+	
+	public int countUser(Map<?, ?> param);
+
+}

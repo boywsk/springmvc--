@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/controller/GroupController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/controller/UserController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMapper.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMapper.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMemberMapper.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMemberMapper.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMemberMarkMapper.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/GroupMemberMarkMapper.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/UserMapper.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/dao/UserMapper.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/global/Command.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/global/Constant.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/global/Global.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/model/Group.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/model/GroupMember.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/model/GroupMemberMark.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/model/User.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/ReqGroup.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/response/Member.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/response/ResultModel.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/response/RspGroup.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/response/RspGroupMember.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/request/response/RspMemberMark.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/service/GroupService.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/service/UserService.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/service/impl/GroupServiceImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/service/impl/UserServiceImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/threadPool/ThreadPool.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/GenerateToken.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/HttpUtil.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/HttpsUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/LRUCache.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/MQSender.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/Md5Util.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/PropertiesUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/SSLClient.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/gome/enterprise/im/api/utils/StringUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/conf" charset="UTF-8" />
+  </component>
+</project>

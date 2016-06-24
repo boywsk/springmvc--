@@ -1,0 +1,101 @@
+package com.gomeplus.im.api.test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
+public class FriendTest extends ApiTester {
+	public static final String FRIEND = "/friend";
+	
+	public static final String APP_ID="gomeplus_im_dev";
+	public static final String APP_ID_URL="?appId="+APP_ID;
+	
+	@Test
+	public void applayAddFriendTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("friendUserId", "9");
+
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/applyAddFriend.json"+APP_ID_URL+"&userId=1", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/applyAddFriend.json"+"&userId=1", result);
+	}
+	@Test
+	public void auditFriendTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("friendUserId", "1");
+		params.put("status", 1);
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/auditFriend.json"+APP_ID_URL+"&userId=9", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/auditFriend.json"+APP_ID_URL+"&userId=9", result);
+	}
+	@Test
+	public void editMarkTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		params.put("friendUserId", "5");
+		params.put("mark", "liuzhenhuan is a good man!");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/editMark.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/editMark.json", result);
+	}
+	@Test
+	public void deleteFriendTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		params.put("friendUserId", "5");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/deleteFriend.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/deleteFriend.json", result);
+	}
+	@Test
+	public void listFriendsTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/listFriends.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/listFriends.json", result);
+	}
+	@Test
+	public void getGroupFriendsTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		params.put("friendGroupId", "19");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/getGroupFriends.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/getGroupFriends.json", result);
+	}
+	@Test
+	public void getAllFriendsTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/getAllFriends.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/getAllFriends.json", result);
+	}
+	@Test
+	public void updateFriendGroupTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		params.put("friendUserId", "3");
+		params.put("friendGroupId", "-1");
+		
+		String result = post(GOMEPLUS_IM_API + FRIEND
+				+ "/updateFriendGroup.json", params);
+		outputResultInfo(GOMEPLUS_IM_API + FRIEND
+				+ "/updateFriendGroup.json", result);
+	}
+}

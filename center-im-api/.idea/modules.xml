@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../gomeo2o-IM/im-api/akka-test/akka-distribute.iml" filepath="$PROJECT_DIR$/../../../gomeo2o-IM/im-api/akka-test/akka-distribute.iml" />
+      <module fileurl="file://E:/akka_cluster/akka_cluster_learn-master/akka_cluster_learn.iml" filepath="E:/akka_cluster/akka_cluster_learn-master/akka_cluster_learn.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../app-server/app-server.iml" filepath="$PROJECT_DIR$/../app-server/app-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/center-im-api.iml" filepath="$PROJECT_DIR$/center-im-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../gomeo2o-IM/connection-server/connection-server.iml" filepath="$PROJECT_DIR$/../../../gomeo2o-IM/connection-server/connection-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../gomepluse-im-api/gomeplus-im-api/gomeplus-im-api.iml" filepath="$PROJECT_DIR$/../../gomepluse-im-api/gomeplus-im-api/gomeplus-im-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../gomeplus-im-manage/gomeplus-im-manage.iml" filepath="$PROJECT_DIR$/../../gomeplus-im-manage/gomeplus-im-manage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../im-manage/im-manage.iml" filepath="$PROJECT_DIR$/../im-manage/im-manage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../im-platform/im-platform.iml" filepath="$PROJECT_DIR$/../im-platform/im-platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../im-upload/im-upload.iml" filepath="$PROJECT_DIR$/../im-upload/im-upload.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../logic/logic-server-sdk.iml" filepath="$PROJECT_DIR$/../../logic/logic-server-sdk.iml" />
+      <module fileurl="file://E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing.iml" filepath="E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing.iml" />
+      <module fileurl="file://E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-api/xiuxing-origin-api.iml" filepath="E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-api/xiuxing-origin-api.iml" />
+      <module fileurl="file://E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-common/xiuxing-origin-common.iml" filepath="E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-common/xiuxing-origin-common.iml" />
+      <module fileurl="file://E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-manage/xiuxing-origin-manage.iml" filepath="E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-manage/xiuxing-origin-manage.iml" />
+      <module fileurl="file://E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-provide/xiuxing-origin-provide.iml" filepath="E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-provide/xiuxing-origin-provide.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.manage.dao.FriendMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.manage.model.Friend" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="userId" property="userId" jdbcType="BIGINT" />
+		<result column="friendUserId" property="friendUserId" jdbcType="BIGINT" />
+		<result column="friendNickName" property="friendNickName" jdbcType="VARCHAR" />
+		<result column="firstNickNameSpell" property="firstNickNameSpell" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="mark" property="mark" jdbcType="VARCHAR" />
+		<result column="firstMarkSpell" property="firstMarkSpell" jdbcType="VARCHAR" />
+		<result column="friendGroupId" property="friendGroupId" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+		<result column="updateTime" property="updateTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+
+	<select id="allFriends" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM  gomeplus_im.tbl_friend where  userId = #{userId} ORDER BY createTime DESC
+		]]>
+	</select>
+
+	<select id="countGroup" parameterType="long" resultType="java.lang.Integer" >
+		<![CDATA[
+    		select count(*) from  gomeplus_im.tbl_friend where userId = #{userId}
+    	]]>
+	</select>
+
+  	<!--<insert id="saveFriend" parameterType="com.gomeplus.im.manage.model.Friend">
+		<![CDATA[
+			insert into tbl_friend(userId,friendUserId,friendNickName,firstNickNameSpell,status,mark,firstMarkSpell,friendGroupId,createTime,updateTime)
+				values 
+			(#{userId},#{friendUserId},#{friendNickName},#{firstNickNameSpell},#{status},#{mark},#{firstMarkSpell},#{friendGroupId},#{createTime},#{updateTime})
+		]]>
+	</insert>
+
+	<update id="updateFriend" parameterType="com.gomeplus.im.manage.model.Friend">
+		update tbl_friend set
+		<if test="friendNickName != null">
+			friendNickName=#{friendNickName},
+		</if>
+		<if test="status != null">
+			status=#{status},
+		</if>
+		<if test="mark != null">
+			mark=#{mark},
+		</if>
+		<if test="updateTime != null">
+			updateTime=#{updateTime}
+		</if>
+		 where userId=#{userId} and friendUserId=#{friendUserId}
+	</update>
+
+	<select id="getFriend" resultType="com.gomeplus.im.manage.model.Friend" parameterType="map">
+		<![CDATA[
+			select * from tbl_friend where userId=#{userId} and friendUserId=#{friendUserId}
+		]]>
+	</select>
+
+	<update id="delFriend" parameterType="map">
+		<![CDATA[
+        delete from tbl_friend  where userId=#{userId} and friendUserId=#{friendUserId}
+		 ]]>
+	</update>
+
+    <select id="listFriend" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_friend where 1=1
+		]]>
+		<if test="userId != null">
+			<![CDATA[
+				and userId = #{userId}
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY createTime DESC LIMIT #{start},#{size}
+		]]>
+	</select>-->
+</mapper>

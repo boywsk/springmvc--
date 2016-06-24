@@ -1,0 +1,186 @@
+package cn.com.gome.manage.controller;
+
+import cn.com.gome.manage.global.Global;
+import cn.com.gome.manage.mongodb.dao.AppDao;
+import cn.com.gome.manage.mongodb.model.ApiResponse;
+import cn.com.gome.manage.pojo.AppInfo;
+import cn.com.gome.manage.utils.HttpUtil;
+import cn.com.gome.manage.utils.Md5Util;
+import cn.com.gome.manage.utils.ParamUtil;
+import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by wangshikai on 2015/12/22.
+ */
+@Controller
+@RequestMapping("/api")
+public class ApiTestController {
+
+	private static final String url = "http://10.125.3.51:8080/im-api/";
+	private static final AppDao appDao = new AppDao();
+
+	@RequestMapping(value="test", method = RequestMethod.GET)
+	public String test(HttpServletRequest request, Model model) {
+		model.addAttribute("url",url);
+		return "api/test";
+	}
+
+	@RequestMapping(value="apiTest", method = RequestMethod.GET)
+	public void doTest(HttpServletRequest request , HttpServletResponse response) {
+		String url = ParamUtil.getParams(request, "url", "");
+		String path = ParamUtil.getParams(request, "select", "");
+		String jsonParms = ParamUtil.getParams(request, "jsonParms", "");
+		String responseJson = null;
+		responseJson = HttpUtil.httpRequest(url + path,jsonParms,"POST");
+		PrintWriter out = null;
+		List<ApiResponse> list = new ArrayList<>();
+		if(responseJson != null){
+			ApiResponse resp = new ApiResponse();
+			resp.setResultData(responseJson);
+			list.add(resp);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", list);
+		String json = JSON.toJSONString(map);
+		try {
+			response.setHeader("Content-type", "text/plain;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("application/json");
+			response.setContentLength(json.getBytes("UTF-8").length);
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if( out != null) {
+				out.close();
+			}
+		}
+	}
+
+
+	private static final String url2 = Global.CENTER_IM_API_URL;
+	@RequestMapping(value="bsApi", method = RequestMethod.GET)
+	public String bsApi(HttpServletRequest request, Model model) {
+		model.addAttribute("url",url2);
+		model.addAttribute("appId","gomeplus_dev");
+		return "api/bsapi";
+	}
+
+	@RequestMapping(value="bsApiTest", method = RequestMethod.GET)
+	public void bsApiTest(HttpServletRequest request , HttpServletResponse response) {
+		String url = ParamUtil.getParams(request, "url", "");
+		String path = ParamUtil.getParams(request, "select", "");
+		String appId = ParamUtil.getParams(request, "appId", "");
+		String jsonParms = ParamUtil.getParams(request, "jsonParms", "");
+		String responseJson = null;
+		long timestamp = System.currentTimeMillis();
+		AppInfo appInfo = appDao.getApp(appId);
+		PrintWriter out = null;
+		String json = "";
+		if(StringUtils.isEmpty(appId) || appInfo == null){
+			List<ApiResponse> list = new ArrayList<>();
+			ApiResponse resp = new ApiResponse();
+			resp.setResultData("appId不存在,appId="+appId);
+			list.add(resp);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("Rows", list);
+			json = JSON.toJSONString(map);
+		}else{
+			String appKey = appInfo.getAppKey();
+			url = url + path +"?appId="+appId+"&signature="+getSignature(appId,appKey,timestamp)+"&timestamp="+timestamp;
+			responseJson = HttpUtil.httpRequest(url,jsonParms,"POST");
+			List<ApiResponse> list = new ArrayList<>();
+			if(responseJson != null){
+				ApiResponse resp = new ApiResponse();
+				resp.setResultData(responseJson);
+				list.add(resp);
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("Rows", list);
+			json = JSON.toJSONString(map);
+		}
+		try {
+			response.setHeader("Content-type", "text/plain;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("application/json");
+			response.setContentLength(json.getBytes("UTF-8").length);
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if( out != null) {
+				out.close();
+			}
+		}
+	}
+
+	private static final String url3 = "http://10.125.3.61:8080/app-server/";
+	@RequestMapping(value="appApi", method = RequestMethod.GET)
+	public String appApi(HttpServletRequest request, Model model) {
+		model.addAttribute("url",url3);
+		return "api/appApi";
+	}
+
+	@RequestMapping(value="appApiTest", method = RequestMethod.GET)
+	public void appApiTest(HttpServletRequest request , HttpServletResponse response) {
+		String url = ParamUtil.getParams(request, "url", "");
+		String path = ParamUtil.getParams(request, "select", "");
+		String jsonParms = ParamUtil.getParams(request, "jsonParms", "");
+		String responseJson = null;
+		url = url + path +"?appId=appId";
+		responseJson = HttpUtil.httpRequest(url,jsonParms,"POST");
+		PrintWriter out = null;
+		List<ApiResponse> list = new ArrayList<>();
+		if(responseJson != null){
+			ApiResponse resp = new ApiResponse();
+			resp.setResultData(responseJson);
+			list.add(resp);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", list);
+		String json = JSON.toJSONString(map);
+		try {
+			response.setHeader("Content-type", "text/plain;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("application/json");
+			response.setContentLength(json.getBytes("UTF-8").length);
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if( out != null) {
+				out.close();
+			}
+		}
+	}
+
+	private static String getSignature(String appId,String appKey,long timestamp) {
+		String signature = null;
+		try {
+			signature = Md5Util.md5Encode(appId + "|" + timestamp + "|" + appKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return signature;
+	}
+
+}

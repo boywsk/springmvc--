@@ -1,0 +1,219 @@
+package com.gome.im.api.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.gome.im.api.model.ResultModel;
+import com.gome.im.api.model.request.ReqGroup;
+import com.gome.im.api.service.GroupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ * Created by wangshikai on 2016/2/29.
+ */
+@Controller
+@RequestMapping("group")
+public class GroupController {
+    Logger log = LoggerFactory.getLogger(GroupController.class);
+    @Autowired
+    private GroupService groupService;
+
+    /**
+     * 创建群
+     * @param reqGroup
+     */
+    @RequestMapping(value = "addGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> addGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("addGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.addGroup(reqGroup);
+    }
+
+    /**
+     * 用户主动加入到群组
+     * @param reqGroup
+     */
+    @RequestMapping(value = "joinGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> joinGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("joinGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.joinGroup(reqGroup);
+    }
+
+    /**
+     * 邀请用户加入到群组
+     * @param reqGroup
+     */
+    @RequestMapping(value = "inviteGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> inviteGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("inviteGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.inviteGroup(reqGroup);
+    }
+
+
+
+    /**
+     * 退出群
+     * @param reqGroup
+     */
+    @RequestMapping(value = "quitGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> quitGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("quitGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.quitGroup(reqGroup);
+    }
+
+    /**
+     * 踢人
+     * @param reqGroup
+     */
+    @RequestMapping(value = "kickGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> kickGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("kickGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.kickGroup(reqGroup);
+    }
+
+    /**
+     * 修改群信息
+     * @param reqGroup
+     */
+    @RequestMapping(value = "editGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> editGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("editGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.editGroup(reqGroup);
+    }
+
+    /**
+     * 解散群
+     * @param reqGroup
+     */
+    @RequestMapping(value = "disbandGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> disbandGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("disbandGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.disbandGroup(reqGroup);
+    }
+
+    /**
+     * 审核群成员
+     * @param reqGroup
+     */
+    @RequestMapping(value = "auditMember", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> auditMember(@RequestBody ReqGroup reqGroup) {
+        log.info("auditMember");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.auditMember(reqGroup);
+    }
+
+    /**
+     * 获取群组信息
+     * @param reqGroup
+     */
+    @RequestMapping(value = "getGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> getGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("getGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.getGroup(reqGroup);
+    }
+
+    /**
+     * 获取群组列表信息
+     * @param reqGroup
+     */
+    @RequestMapping(value = "listGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> listGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("listGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.listGroup(reqGroup);
+    }
+
+    /**
+     * 设置、修改群备注
+     * @param reqGroup
+     */
+    @RequestMapping(value = "editMemberMark", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> editMemberMark(@RequestBody ReqGroup reqGroup) {
+        log.info("editpMemberMark");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.editMemberMark(reqGroup);
+    }
+
+    /**
+     * 获取群组列表信息
+     * @param reqGroup
+     */
+    @RequestMapping(value = "listGroupMember", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> listGroupMember(@RequestBody ReqGroup reqGroup) {
+        log.info("listGroupMember");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.listGroupMember(reqGroup);
+    }
+
+//    /**
+//     * 添加群组管理员
+//     * @param reqGroup
+//     */
+//    @RequestMapping(value = "addManager", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ResultModel<Object> addManager(@RequestBody ReqGroup reqGroup) {
+//        log.info("addManager");
+//        log.info("parms:"+JSON.toJSONString(reqGroup));
+//        return groupService.addManager(reqGroup);
+//    }
+//
+//    /**
+//     * 删除群组管理员
+//     * @param reqGroup
+//     */
+//    @RequestMapping(value = "delManager", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ResultModel<Object> delManager(@RequestBody ReqGroup reqGroup) {
+//        log.info("delManager");
+//        log.info("parms:"+JSON.toJSONString(reqGroup));
+//        return groupService.delManager(reqGroup);
+//    }
+
+    /**
+     * 设置屏蔽群消息
+     * @param reqGroup
+     */
+    @RequestMapping(value = "shieldGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> shieldGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("shieldGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.shieldGroup(reqGroup);
+    }
+
+    /**
+     * 设置群置顶
+     * @param reqGroup
+     */
+    @RequestMapping(value = "sickiesGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultModel<Object> sickiesGroup(@RequestBody ReqGroup reqGroup) {
+        log.info("sickiesGroup");
+        log.info("parms:"+JSON.toJSONString(reqGroup));
+        return groupService.sickiesGroup(reqGroup);
+    }
+}

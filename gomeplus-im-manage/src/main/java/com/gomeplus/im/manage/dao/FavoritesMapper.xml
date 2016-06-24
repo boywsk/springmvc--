@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.manage.dao.FavoritesMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.manage.model.Favorites" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="userId" property="userId" jdbcType="BIGINT" />
+		<result column="contentType" property="contentType" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="extra" property="extra" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+	<select id="getFavorites" resultMap="BaseResultMap" parameterType="long">
+		<![CDATA[
+			select * from gomeplus_im.tbl_favorites where userId = #{userId}
+		]]>
+	</select>
+
+</mapper>

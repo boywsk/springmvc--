@@ -1,0 +1,11 @@
+#mongondb库名
+mongodb.dbName=db_im
+
+host=10.125.3.21
+port=27018
+connectionsPerHost=300
+connectionMultiplier=5000
+
+#文件地址
+fileBasicPath=http://10.125.31.23/v1/img/
+#fileBasicPath=http://10.125.2.30/v1/img/  上面的地址由于运维修改Nignx配备文件出错，临时使用

@@ -1,0 +1,21 @@
+connectionsPerHost=300
+connectionMultiplier=5000
+#mongondb库名
+mongodb.dbName=db_im
+#开发环境
+#host=10.125.3.21
+#port=27018
+#测试环境
+#host=10.69.211.181
+#port=30000
+#预生产环境
+#host=10.125.2.184
+#port=30000
+#生产环境
+host=10.125.8.151
+port=30000
+#文件地址
+#nginx下载地址		非生产环境
+#fileBasicPath=http://10.69.213.1/v1/img/
+#nginx下载地址		生产环境
+fileBasicPath=http://i9.meixincdn.com/v1/img/

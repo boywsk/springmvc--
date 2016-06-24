@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.api.dao.UserMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.api.model.User" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="phoneNumber" property="phoneNumber" jdbcType="BIGINT" />
+		<result column="userName" property="userName" jdbcType="VARCHAR" />
+		<result column="userNameHashId" property="userNameHashId" jdbcType="BIGINT" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="nickName" property="nickName" jdbcType="VARCHAR" />
+		<result column="avatar" property="avatar" jdbcType="VARCHAR" />
+		<result column="gender" property="gender" jdbcType="INTEGER" />
+		<result column="region" property="region" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday" jdbcType="INTEGER" />
+		<result column="autograph" property="autograph" jdbcType="VARCHAR" />
+		<result column="token" property="token" jdbcType="VARCHAR" />
+		<result column="tokenValidity" property="tokenValidity" jdbcType="BIGINT" />
+		<result column="mobileClientId" property="mobileClientId" jdbcType="INTEGER" />
+		<result column="pcClientId" property="pcClientId" jdbcType="INTEGER" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+		<result column="updateTime" property="updateTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+  	<insert id="saveUser" parameterType="com.gomeplus.im.api.model.User" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+			insert into tbl_user(phoneNumber,userName,userNameHashId,password,nickName,avatar,gender,region,birthday,autograph,token,tokenValidity,mobileClientId,pcClientId,createTime,updateTime)
+				values 
+			(#{phoneNumber},#{userName},#{userNameHashId},#{password},#{nickName},#{avatar},#{gender},#{region},#{birthday},#{autograph},#{token},#{tokenValidity},#{mobileClientId},#{pcClientId},#{createTime},#{updateTime})
+		]]>
+	</insert>
+	<update id="updateUserInfo" parameterType="com.gomeplus.im.api.model.User">
+		update tbl_user set
+		<if test="phoneNumber != null">
+		phoneNumber=#{phoneNumber},
+		</if>
+		<if test="password != null">
+			password=#{password},
+		</if>
+		<if test="nickName != null">
+			nickName=#{nickName},
+		</if>
+		<if test="avatar != null">
+			avatar=#{avatar},
+		</if>
+		<if test="gender != null">
+			gender=#{gender},
+		</if>
+		<if test="region != null">
+			region=#{region},
+		</if>
+		<if test="birthday != null">
+			birthday=#{birthday},
+		</if>
+		<if test="autograph != null">
+			autograph=#{autograph},
+		</if>
+		<if test="token != null">
+			token=#{token},
+		</if>
+		<if test="tokenValidity != null">
+			tokenValidity=#{tokenValidity},
+		</if>
+		<if test="pcClientId != null">
+			pcClientId=#{pcClientId},
+		</if>
+		<if test="mobileClientId != null">
+			mobileClientId=#{mobileClientId},
+		</if>
+		<if test="updateTime != null">
+			updateTime=#{updateTime}
+		</if>
+		 where id=#{id}
+	</update>
+
+	<select id="getUserInfo" resultType="com.gomeplus.im.api.model.User" parameterType="long">
+		<![CDATA[
+			select * from tbl_user where id=#{id}
+		]]>
+	</select>
+	<select id="getUserInfoByUserName" resultType="com.gomeplus.im.api.model.User" parameterType="string">
+		<![CDATA[
+			select * from tbl_user where userName=#{userName}
+		]]>
+	</select>
+
+	<select id="getUserInfoByPhoneNumber" resultType="com.gomeplus.im.api.model.User" parameterType="long">
+		<![CDATA[
+			select * from tbl_user where phoneNumber=#{phoneNumber}
+		]]>
+	</select>
+
+	<update id="delUser" parameterType="int">
+		<![CDATA[
+			delete from tbl_user where id=#{id}
+		]]>
+	</update>
+
+	<select id="countUser" parameterType="map" resultType="java.lang.Integer" >
+    	<![CDATA[
+    		select count(*) from tbl_user where 1=1
+    	]]>
+    	<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%')  
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and name like CONCAT('%',#{name},'%')
+			]]>
+		</if>
+    </select>
+
+    <select id="listUser" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_user WHERE id <= 
+		(SELECT id FROM tbl_user where 1=1
+		]]>
+		<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%')  
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and name like CONCAT('%',#{name},'%')
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY id DESC LIMIT #{sart}, 1) 
+		]]>
+		<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%') 
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and name like CONCAT('%',#{name},'%')
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY id DESC LIMIT #{pageSize}
+		]]>
+	</select>
+
+</mapper>

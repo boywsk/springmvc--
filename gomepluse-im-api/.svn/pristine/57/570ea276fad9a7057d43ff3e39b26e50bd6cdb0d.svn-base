@@ -1,0 +1,23 @@
+#mq配置
+mq.host=10.125.3.11
+mq.port=5672
+mq.virtualHost=push
+mq.username=gome
+mq.password=gome
+mq.queueName=push-queue
+
+#QRCode conf 二维码相关
+qrcode_image_height=300
+qrcode_image_weight=300
+qrcode_url1=http://localhost:8080?type=%s&id=%s
+qrcode_url2=http://localhost:8080?type=%s&id=%s
+
+#聊天消息分库模值
+msg.db.modulo=64
+#聊天消息分表模值
+msg.table.modulo=2
+
+#mysql 配置
+jdbc.url=jdbc:mysql://10.125.31.220:3306/gomeplus_oa?useUnicode=true&amp;characterEncoding=utf-8
+jdbc.username=admin_develop
+jdbc.password=admin6E85E1357Adev

@@ -1,0 +1,12 @@
+#redis服务器地址、端口		非生产环境
+logic.server.redis.address=10.69.213.186
+logic.server.redis.port=7000
+#redis服务器地址、端口		生产环境
+#logic.server.redis.address=10.125.8.131
+#logic.server.redis.port=7001
+#redis密码
+#offline.server.redis.pass=gome
+#redis选择db
+logic.server.redis.index=0
+#用户在线信息在redis中过期时间；每次心跳都要重新刷新该信息；单位秒
+online.redis.expire=600

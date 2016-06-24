@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.im.api.dao.GroupMemberMapper" >
+	<resultMap id="BaseResultMap" type="com.gome.im.api.db.model.GroupMember" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="groupId" property="groupId" jdbcType="VARCHAR" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="nickName" property="nickName" jdbcType="VARCHAR" />
+		<result column="stickies" property="stickies" jdbcType="INTEGER" />
+		<result column="isShield" property="isShield" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="initSeq" property="initSeq" jdbcType="BIGINT" />
+		<result column="readSeq" property="readSeq" jdbcType="BIGINT" />
+		<result column="joinTime" property="joinTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+  	<insert id="saveGroupMemberBatch" parameterType="java.util.List">
+			insert into tbl_group_member(groupId,uid,nickName,stickies,isShield,status,initSeq,readSeq,joinTime)
+				values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.groupId},#{item.uid},#{item.nickName},#{item.stickies},#{item.isShield},#{item.status},#{item.initSeq},#{item.readSeq},#{item.joinTime})
+		</foreach>
+	</insert>
+
+	<update id="updateGroupMember" parameterType="com.gome.im.api.db.model.GroupMember">
+		update tbl_group_member set
+		<if test="nickName != null">
+			nickName=#{nickName},
+		</if>
+		<if test="stickies != null">
+			stickies=#{stickies},
+		</if>
+		<if test="isShield != null">
+			isShield=#{isShield},
+		</if>
+		<if test="status != null">
+			status=#{status},
+		</if>
+		<if test="initSeq != null">
+			initSeq=#{initSeq},
+		</if>
+		<if test="readSeq != null">
+			readSeq=#{readSeq}
+		</if>
+		 where groupId=#{groupId} and uid=#{uid}
+	</update>
+
+	<select id="getGroupMember" resultType="com.gome.im.api.db.model.GroupMember" parameterType="map">
+		<![CDATA[
+			select * from tbl_group_member where groupId=#{groupId} and uid = #{uid}
+		]]>
+	</select>
+
+	<update id="delGroupMember" parameterType="map">
+		delete from tbl_group_member  where groupId=#{groupId} and uid = #{uid}
+	</update>
+
+	<update id="delAllGroupMember" parameterType="String">
+		delete from tbl_group_member  where groupId=#{groupId}
+	</update>
+
+    <select id="listGroupMember" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_group_member where 1=1
+		]]>
+		<if test="groupId != null">
+			<![CDATA[
+				and groupId = #{groupId}
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY joinTime DESC LIMIT #{start},#{size}
+		]]>
+	</select>
+
+	<select id="memberGroups" parameterType="long" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_group_member where 1=1
+		and uid = #{uid} and status=1
+		ORDER BY joinTime DESC
+		]]>
+	</select>
+
+	<select id="countGroupMember" parameterType="map" resultType="java.lang.Integer" >
+		<![CDATA[
+    		select count(*) from tbl_group_member where 1=1
+    	]]>
+		<if test="groupId != null">
+			<![CDATA[
+				and groupId = #{groupId} and status=1
+			]]>
+		</if>
+	</select>
+
+</mapper>

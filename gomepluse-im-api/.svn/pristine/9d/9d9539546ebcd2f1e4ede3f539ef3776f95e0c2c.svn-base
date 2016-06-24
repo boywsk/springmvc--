@@ -1,0 +1,65 @@
+package com.gomeplus.im.api.global;
+
+
+/**
+ * 用户相关的常量
+ * @author liuzhenhuan
+ * @date 2016年6月3日 上午9:18:31 
+ * @version V1.0  
+ */
+public class UserConstant {
+	
+	
+	/**
+	 * 用户性别
+	 * 0：男,1：女
+	 * 
+	 */
+	public enum USER_GENDER {
+		MALE(1),//男
+		FEMALE(2);//女
+
+		public int value;
+		USER_GENDER(int value) {
+			this.value = value;
+		}
+	}
+	
+	
+	/**
+	 * 移动端类型
+	 * 10:IOS , 11:Android , 12:wp
+	 * 
+	 */
+	public enum MOBELE_CLIENT_TYPE {
+		IOS(10),//IOS
+		ANDROID(11),//Android
+		WP(12);  //wp
+		public int value;
+		MOBELE_CLIENT_TYPE(int value) {
+			this.value = value;
+		}
+	}
+	
+	
+	/**
+	 * 非移动端类型
+	 * 20:pc, 21:mac, 22:ubuntu, 23:linux ,24:unix ,25:ipad
+	 * 
+	 */
+	public enum PC_CLIENT_TYPE {
+		PC(20),//pc
+		MAC(21),//mac
+		UBUNTU(22), //ubuntu
+		LINUX(23),//linux
+		UNIX(24),//unix
+		IPAD(25);//ipad
+		
+		public int value;
+		PC_CLIENT_TYPE(int value) {
+			this.value = value;
+		}
+	}
+	
+
+}

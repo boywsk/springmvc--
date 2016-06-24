@@ -1,0 +1,31 @@
+package com.gomeplus.im.api.message;
+
+import java.io.Serializable;
+
+public class NoticeMsg implements Serializable {
+	/**
+	 * 功能消息 CDM:0x0100
+	 */
+	private static final long serialVersionUID = 1L;
+	private String msgId; // 消息id
+	private int noticeType;// 通知； 100:申请添加好友、101:删除好友、102:同意/拒绝好友申请，
+							// 200:申请加入群、201:通知管理员审核加入成员、202:邀请加入群
+							// 、203:通知被邀请加入群、204:退/踢出群、205:修改群信息、206:解散群
+
+	public String getMsgId() {
+		return msgId;
+	}
+
+	public void setMsgId(String msgId) {
+		this.msgId = msgId;
+	}
+
+	public int getNoticeType() {
+		return noticeType;
+	}
+
+	public void setNoticeType(int noticeType) {
+		this.noticeType = noticeType;
+	}
+
+}

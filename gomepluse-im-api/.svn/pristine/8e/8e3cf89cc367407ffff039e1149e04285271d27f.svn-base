@@ -1,0 +1,119 @@
+package com.gomeplus.im.api.test;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Test;
+
+import redis.clients.jedis.JedisCluster;
+
+import com.gomeplus.im.api.global.Constant;
+import com.gomeplus.im.api.request.response.Member;
+
+public class GroupTest extends ApiTester{
+	public static final String GROUP = "/group";
+	
+	public static final String APP_ID="LZH_APP_ID_TEST";
+	public static final String APP_ID_URL="?appId="+APP_ID;
+	
+	
+	private static final String GROUP_INFO_SUFFIX = "_info";
+	private static final String MEMBER_INFO_SUFFIX = "_member";
+	private static final String USER_GROUPS_SUFFIX = "_gids";
+	private static final String GROUP_MEMBERS_SUFFIX = "_members";
+
+	@Test
+	public void addGroupTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "1");
+		params.put("nickName", "刘贞环测试群组");
+		params.put("groupName", "刘贞环群组2");
+		List<Member> memberList=new ArrayList<Member>();
+		for (int i = 3; i <10; i+=2) {
+			Member member=new Member();
+			if (i<10) {
+				member.setIdentity(Constant.GROUP_MEMBER_IDENTITY.E_MEMBER_ORDINARY.value);
+			}else {
+				member.setIdentity(Constant.GROUP_MEMBER_IDENTITY.E_MEMBER_MANAGER.value);
+			}
+			member.setUserId(i);
+			member.setUserName("刘贞环昵称"+i);//
+			memberList.add(member);
+		}
+		
+		params.put("members", memberList);
+		
+		String result = post(GOMEPLUS_IM_API + GROUP
+				+ "/addGroup.json"+APP_ID_URL, params);
+		outputResultInfo(GOMEPLUS_IM_API + GROUP
+				+ "/addGroup.json"+APP_ID_URL, result);
+	}
+	@Test
+	public void getRedisTest(){
+		JedisCluster jedis=JedisClusterClientTest.INSTANCE.getJedisCluster();
+		String groupId = "58c5f73e9f824969b5b0f317a2d17002";
+		long userId = 1L;
+		String appId=APP_ID;
+	    //  缓存用户的群组（创建的群组） redim set ( key = appId + "_" + userId +"_"+suffix)
+		String userGroupIdsKey = appId +"_" + userId + USER_GROUPS_SUFFIX;
+		Set<String> userGroupIdsValue = jedis.smembers(userGroupIdsKey);
+		System.out.println("userGroupIdsKey:"+userGroupIdsKey+",userGroupIdsValue:"+userGroupIdsValue);
+//		
+		
+//	//  缓存群组信息 redis string  ( key = appId+"_"+groupId +"_"+suffix)
+		String groupInfoKey = appId + "_" + groupId + GROUP_INFO_SUFFIX;
+		String groupInfoValue = jedis.get(groupInfoKey);
+		System.out.println("groupInfoKey:"+groupInfoKey+",groupInfoValue:"+groupInfoValue);
+//		
+//		
+//		//  缓存群组的成员 redis set ( key = appId + "_" + groupId +"_"+suffix)
+//		List<String> userIdList=new ArrayList<String>();
+		String groupMemberKey ="";
+		String groupMembersKey = appId + "_" + groupId + GROUP_MEMBERS_SUFFIX;
+		Set<String> groupMembersValue = jedis.smembers(groupMembersKey);
+		System.out.println("groupMemberKey:"+groupMembersKey+",groupMemberValue: "+groupMembersValue);
+		System.out.println("====groupMember======");
+		
+		for (String strMemeberUserId : groupMembersValue) {
+			long memberUserId = Long.valueOf(strMemeberUserId);
+			//缓存群组成员信息 redis string ( key = appId +"_"+groupId+"_"+ userId +"_"+ suffix)
+			groupMemberKey = appId +"_"+groupId+"_"+memberUserId + MEMBER_INFO_SUFFIX;
+			
+			String groupMemberValue = jedis.get(groupMemberKey);
+			System.out.println("groupMemberKey:"+groupMemberKey+",groupMemberValue: "+groupMemberValue);
+		}
+//		
+		
+	}
+	
+	@Test
+	public void joinGroupTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userId", "15");
+		params.put("groupId", "58c5f73e9f824969b5b0f317a2d17002");
+		params.put("nickName", "刘贞环测试群组");
+		
+		
+		String result = post(GOMEPLUS_IM_API + GROUP
+				+ "/joinGroup.json"+APP_ID_URL, params);
+		outputResultInfo(GOMEPLUS_IM_API + GROUP
+				+ "/joinGroup.json"+APP_ID_URL, result);
+	}
+	@Test
+	public void dateTest(){
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMdd");
+		String format = sdf.format(new Date(1463639557748L));
+		System.out.println(Integer.valueOf(format));
+		
+	}
+	
+}
+
+
+
+

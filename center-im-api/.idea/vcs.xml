@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../im-manage" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../gomeplus-im-manage" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../gomepluse-im-api/gomeplus-im-api" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../logic" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../../gomeo2o-IM/connection-server" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../../gomeo2o-IM/im-api/akka-test" vcs="svn" />
+  </component>
+</project>

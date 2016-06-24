@@ -1,0 +1,29 @@
+package com.gomeplus.im.manage.service.impl;
+
+import com.gomeplus.im.manage.dao.UserMapper;
+import com.gomeplus.im.manage.model.User;
+import com.gomeplus.im.manage.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+/**
+ * Created by wangshikai on 2016/6/3.
+ */
+@Service
+public class UserServiceImpl implements UserService{
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public User getUserByName(Map<String,Object> parm) {
+        return userMapper.getUserInfoByName(parm);
+    }
+
+    @Override
+    public User getUserByPhone(long phoneNum) {
+        return userMapper.getUserInfoByPhoneNumber(phoneNum);
+    }
+}

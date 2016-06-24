@@ -1,0 +1,13 @@
+#用户在线信息redis db
+user.redis.index=0
+#聊天消息分库模值
+msg.db.modulo=64
+#聊天消息分表模值
+msg.table.modulo=2
+#服务器资源redis选择db
+server.resource.redis.index=15
+#center-im-api url  开发环境
+#centerImApiUrl=http://10.125.3.61:8080/center-im-api/
+
+#center-im-api url  测试环境
+centerImApiUrl=http://10.69.211.17:8080/center-im-api/

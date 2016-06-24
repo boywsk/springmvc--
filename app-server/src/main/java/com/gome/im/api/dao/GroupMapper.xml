@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.im.api.dao.GroupMapper" >
+	<resultMap id="BaseResultMap" type="com.gome.im.api.db.model.Group" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="groupId" property="groupId" jdbcType="VARCHAR" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="groupName" property="groupName" jdbcType="VARCHAR" />
+		<result column="groupDesc" property="groupDesc" jdbcType="VARCHAR" />
+		<result column="avatar" property="avatar" jdbcType="VARCHAR" />
+		<result column="qRcode" property="qRcode" jdbcType="VARCHAR" />
+		<result column="capacity" property="capacity" jdbcType="INTEGER" />
+		<result column="isAudit" property="isAudit" jdbcType="INTEGER" />
+		<result column="stickies" property="stickies" jdbcType="INTEGER" />
+		<result column="isDele" property="isDele" jdbcType="INTEGER" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+		<result column="updateTime" property="updateTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+  	<insert id="saveGroup" parameterType="com.gome.im.api.db.model.Group">
+		<![CDATA[
+			insert into tbl_group(groupId,uid,type,groupName,groupDesc,avatar,qRcode,capacity,isAudit,stickies,isDele,createTime,updateTime)
+				values 
+			(#{groupId},#{uid},#{type},#{groupName},#{groupDesc},#{avatar},#{qRcode},#{capacity},#{isAudit},#{stickies},#{isDele},#{createTime},#{updateTime})
+		]]>
+	</insert>
+	<update id="updateGroup" parameterType="com.gome.im.api.db.model.Group">
+		update tbl_group set
+		<if test="groupName != null">
+			groupName=#{groupName},
+		</if>
+		<if test="groupDesc != null">
+			groupDesc=#{groupDesc},
+		</if>
+		<if test="avatar != null">
+			avatar=#{avatar},
+		</if>
+		<if test="qRcode != null">
+			qRcode=#{qRcode},
+		</if>
+		<if test="capacity != null">
+			capacity=#{capacity},
+		</if>
+		<if test="isAudit != null">
+			isAudit=#{isAudit},
+		</if>
+		<if test="stickies != null">
+			stickies=#{stickies},
+		</if>
+		<if test="updateTime != null">
+			updateTime=#{updateTime}
+		</if>
+		 where groupId=#{groupId}
+	</update>
+
+	<select id="getGroup" resultType="com.gome.im.api.db.model.Group" parameterType="String">
+		<![CDATA[
+			select * from tbl_group where groupId=#{groupId} and isDele = 0
+		]]>
+	</select>
+
+	<update id="delGroup" parameterType="String">
+		update tbl_group set
+			isDele=1
+		 where groupId=#{groupId}
+	</update>
+
+    <select id="listGroup" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_group where 1=1
+		]]>
+		<if test="uid != null">
+			<![CDATA[
+				and uid = #{uid} and isDele = 0
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY createTime DESC LIMIT #{start},#{size}
+		]]>
+	</select>
+
+	<select id="countGroup" parameterType="map" resultType="java.lang.Integer" >
+		<![CDATA[
+    		select count(*) from tbl_group where 1=1
+    	]]>
+		<if test="uid != null">
+			<![CDATA[
+				and uid = #{uid} and isDele = 0
+			]]>
+		</if>
+	</select>
+
+</mapper>

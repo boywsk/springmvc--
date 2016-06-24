@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.manage.dao.SysUserMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.manage.pojo.User" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="userName" property="userName" jdbcType="VARCHAR" />
+	    <result column="nickName" property="nickName" jdbcType="VARCHAR" />
+	    <result column="password" property="password" jdbcType="VARCHAR" />
+	    <result column="createTime" property="createTime" jdbcType="BIGINT" />
+  	</resultMap>
+  	
+  	<resultMap id="MenuResultMap" type="com.gomeplus.im.manage.pojo.Menu" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="pid" property="pid" jdbcType="BIGINT" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="url" property="url" jdbcType="VARCHAR" />
+	     <result column="orderBy" property="orderBy" jdbcType="BIGINT" />
+  	</resultMap>
+  	<insert id="saveUser" parameterType="com.gomeplus.im.manage.pojo.User">
+		<![CDATA[
+			insert into tbl_user(userName,nickName,password,createTime) 
+				values 
+			(#{userName},#{nickName},#{password},#{createTime})
+		]]>
+	</insert>
+	
+	<update id="updateUserByid" parameterType="com.gomeplus.im.manage.pojo.User">
+		update tbl_user set userName=#{userName},nickName=#{nickName},password=#{password} where id=#{id}
+	</update>
+  	
+	<select id="getUserByUserName" resultType="com.gomeplus.im.manage.pojo.User" parameterType="String">
+		<![CDATA[
+			select * from tbl_user where username=#{username}
+		]]>
+	</select>
+
+	<select id="countUser" parameterType="map" resultType="java.lang.Integer" >
+    	<![CDATA[
+    		select count(*) from tbl_user where 1=1
+    	]]>
+    	<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%')  
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and nickName like CONCAT('%',#{nickName},'%')
+			]]>
+		</if>
+    </select>
+
+    <select id="listUser" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_user WHERE id <= 
+		(SELECT id FROM tbl_user where 1=1
+		]]>
+		<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%')  
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and nickName like CONCAT('%',#{nickName},'%')
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY id DESC LIMIT #{sart}, 1) 
+		]]>
+		<if test="userName != null">
+			<![CDATA[
+				and userName like CONCAT('%',#{userName},'%') 
+			]]>
+		</if>
+		<if test="name != null">
+			<![CDATA[
+				and name like CONCAT('%',#{name},'%')
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY id DESC LIMIT #{pageSize}
+		]]>
+	</select>
+
+	<update id="delUser" parameterType="map">
+		<![CDATA[
+			delete from tbl_user where id in (${ids})
+		]]>
+	</update>
+
+	<insert id="saveMenu" parameterType="com.gomeplus.im.manage.pojo.Menu">
+		<![CDATA[
+			insert into tbl_menu(pid,name,url,orderBy) 
+				values 
+			(#{pid},#{name},#{url},#{orderBy})
+		]]>
+	</insert>
+	
+	<update id="updateMenuByid" parameterType="com.gomeplus.im.manage.pojo.Menu">
+		<![CDATA[
+			update tbl_menu set name=#{name},url=#{url},orderBy=#{orderBy} where id=#{id}
+		]]>
+	</update>
+
+	<select id="getMenuByPid" resultMap="MenuResultMap" parameterType="java.lang.Long">
+		<![CDATA[
+			select * from tbl_menu where pid=#{pid} order by orderBy
+		]]>
+	</select>
+	
+	<select id="getMenuById" resultMap="MenuResultMap" parameterType="java.lang.Long">
+		<![CDATA[
+			select * from tbl_menu where id=#{id}
+		]]>
+	</select>
+	
+	<update id="delMenu" parameterType="map">
+		<![CDATA[
+			delete from tbl_menu where id = ${id} or pid = ${id}
+		]]>
+	</update>
+	
+	<select id="listUserMenu" resultMap="MenuResultMap" parameterType="map">
+		<![CDATA[
+			 select m.* FROM tbl_menu m, tbl_user_permit p where p.uid = ${uid} and p.menuId = m.id
+		]]>
+	</select>
+	
+	<update id="delUserPermit" parameterType="map">
+		<![CDATA[
+			delete from tbl_user_permit where uid = ${uid}
+		]]>
+	</update>
+	
+	<insert id="saveUserPermit" parameterType="com.gomeplus.im.manage.pojo.UserPermit">
+		<![CDATA[
+			insert into tbl_user_permit(uid,menuId) 
+				values 
+			(#{uid},#{menuId})
+		]]>
+	</insert>
+	
+	<select id="listUserParentMenu" resultMap="MenuResultMap" parameterType="map">
+		<![CDATA[
+			 select m.* FROM tbl_menu m, tbl_user_permit p where p.uid = ${uid} and p.menuId = m.id and m.pid = 0 order by m.orderBy
+		]]>
+	</select>
+	
+	<select id="listUserSubMenu" resultMap="MenuResultMap" parameterType="map">
+		<![CDATA[
+			 select m.* FROM tbl_menu m, tbl_user_permit p where p.uid = ${uid} and p.menuId = m.id and m.pid = ${pid} order by m.orderBy
+		]]>
+	</select>
+</mapper>

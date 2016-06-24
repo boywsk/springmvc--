@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.manage.dao.FriendGroupMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.manage.model.FriendGroup" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="userId" property="userId" jdbcType="BIGINT" />
+		<result column="groupName" property="groupName" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+		<result column="updateTime" property="updateTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+	<select id="listFriendGroup" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM  gomeplus_im.tbl_friend_group where
+		]]>
+		<if test="userId != null">
+			<![CDATA[
+				and userId = #{userId}
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY createTime DESC
+		]]>
+	</select>
+
+</mapper>

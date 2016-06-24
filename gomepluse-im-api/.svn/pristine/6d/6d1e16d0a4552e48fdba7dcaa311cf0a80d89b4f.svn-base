@@ -1,0 +1,153 @@
+package com.gomeplus.im.api.service.impl;
+
+import com.gomeplus.im.api.dao.UserMapper;
+import com.gomeplus.im.api.global.Global;
+import com.gomeplus.im.api.model.User;
+import com.gomeplus.im.api.request.response.ResultModel;
+import com.gomeplus.im.api.service.UserService;
+import com.gomeplus.im.api.utils.Md5Util;
+import com.gomeplus.im.api.utils.StringUtils;
+import com.gomeplus.im.api.dao.UserMapper;
+import com.gomeplus.im.api.global.Global;
+import com.gomeplus.im.api.request.response.ResultModel;
+import com.gomeplus.im.api.utils.Md5Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+
+@Service
+public class UserServiceImpl implements UserService {
+    Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public ResultModel<Object> saveUser(final User user) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "注册失败", new HashMap<>());
+        try {
+            if (user.getPhoneNumber() < 10000000000L) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "手机号码不正确", new HashMap<>());
+            }
+            User oldUser = userMapper.getUserInfoByPhoneNumber(user.getPhoneNumber());
+            if (oldUser != null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "手机号已注册", new HashMap<>());
+            }
+            // TODO if(用户名已注册){}
+
+            long time = System.currentTimeMillis();
+            user.setPhoneNumber(user.getPhoneNumber());
+            user.setUserName(user.getUserName());
+            user.setNickName(user.getNickName());
+            String pwd = user.getPassword();
+
+            //TODO 向企业办公索要加密方式
+            pwd = Md5Util.md5Encode(pwd);
+
+            user.setPassword(pwd);
+            user.setCreateTime(time);
+            user.setUpdateTime(time);
+            String token = StringUtils.getUuid();
+            long tokenExpires = System.currentTimeMillis() + Global.TOKEN_EXPIRE_TIME;
+            user.setToken(token);
+            user.setTokenValidity(tokenExpires);
+            userMapper.saveUser(user);
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "注册成功", user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public ResultModel<Object> updateUserInfo(User reqUser) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "更新失败", new HashMap<>());
+        try {
+            User user = userMapper.getUserInfo(reqUser.getId());
+            if (user != null) {
+                String token = StringUtils.getUuid();
+                user.setToken(token);
+                long tokenExpires = System.currentTimeMillis() + Global.TOKEN_EXPIRE_TIME;
+                user.setTokenValidity(tokenExpires);
+                userMapper.updateUserInfo(user);
+                resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "更新成功", user);
+            } else {
+                resultModel.setMessage("更新失败,用户不存在");
+                return resultModel;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public ResultModel<Object> getUserInfo(User reqUser) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "获取信息失败", new HashMap<>());
+        try {
+            User user = userMapper.getUserInfo(reqUser.getId());
+            HashMap<String, Object> map = getInfo(user);
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "获取信息成功", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    @Override
+    public ResultModel<Object> login(User reqUser, HttpServletRequest request) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "登录失败", new HashMap<>());
+        try {
+            User user = userMapper.getUserInfoByPhoneNumber(reqUser.getPhoneNumber());
+            if (user != null && user.getPassword().equals(reqUser.getPassword())) {
+                request.getSession().setAttribute("user", user);
+                return new ResultModel<Object>(ResultModel.RESULT_OK, "登录成功", user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    @Override
+    public ResultModel<Object> findUser(User reqUser) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "用户不存在", new HashMap<>());
+        try {
+            User user = userMapper.getUserInfoByPhoneNumber(reqUser.getPhoneNumber());
+            HashMap<String, Object> map = new HashMap<>();
+            if (user != null) {
+                map = getInfo(user);
+            }
+            return new ResultModel<Object>(ResultModel.RESULT_OK, "查询用户成功", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    public HashMap<String, Object> getInfo(User user) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id", user.getId());
+        map.put("userName", user.getUserName());
+        map.put("nickName", user.getNickName());
+        map.put("gender", user.getGender());
+        map.put("avatar", user.getAvatar());
+        map.put("region", user.getRegion());
+        map.put("birthday", user.getBirthday());
+        map.put("autograph", user.getAutograph());
+        map.put("phoneNumber", user.getPhoneNumber());
+        return map;
+    }
+
+}

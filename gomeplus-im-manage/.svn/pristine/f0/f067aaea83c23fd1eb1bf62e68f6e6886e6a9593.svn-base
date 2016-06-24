@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gomeplus.im.manage.dao.ContactsMapper" >
+	<resultMap id="BaseResultMap" type="com.gomeplus.im.manage.model.Contacts" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="userId" property="userId" jdbcType="BIGINT" />
+		<result column="contactName" property="contactName" jdbcType="VARCHAR" />
+		<result column="firstContactNameSpell" property="firstContactNameSpell" jdbcType="VARCHAR" />
+		<result column="phoneNumber" property="phoneNumber" jdbcType="BIGINT" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+		<result column="updateTime" property="updateTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+	<select id="getContacts"  parameterType="long" resultMap="BaseResultMap" >
+		<![CDATA[
+			SELECT * FROM  ${database}.tbl_contacts where  userId = #{userId}
+		]]>
+	</select>
+
+</mapper>

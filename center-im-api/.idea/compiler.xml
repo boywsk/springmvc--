@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="akka-distribute" />
+        <module name="app-server" />
+        <module name="center-im-api" />
+        <module name="connection-server" />
+        <module name="enterprise.im.api" />
+        <module name="gomeplus-im-api" />
+        <module name="im-platform" />
+        <module name="im-upload" />
+        <module name="logic-server-sdk" />
+      </profile>
+      <profile default="false" name="Annotation profile for akka_cluster_learn" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="akka_cluster_learn" />
+      </profile>
+      <profile default="false" name="Annotation profile for im-manage" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="im-manage" />
+      </profile>
+      <profile default="false" name="Annotation profile for xiuxing-origin-api" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="xiuxing-origin-api" />
+      </profile>
+      <profile default="false" name="Annotation profile for xiuxing-origin-provide" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="xiuxing-origin-provide" />
+      </profile>
+      <profile default="false" name="Annotation profile for xiuxing-origin-common" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="xiuxing-origin-common" />
+      </profile>
+      <profile default="false" name="Annotation profile for xiuxing-origin-manage" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="xiuxing-origin-manage" />
+      </profile>
+      <profile default="false" name="Annotation profile for gomeplus-im-manage" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="1.7">
+      <module name="akka-distribute" target="1.7" />
+      <module name="akka_cluster_learn" target="1.6" />
+      <module name="app-server" target="1.5" />
+      <module name="center-im-api" target="1.5" />
+      <module name="connection-server" target="1.5" />
+      <module name="gomeplus-im-api" target="1.7" />
+      <module name="gomeplus-im-manage" target="1.8" />
+      <module name="im-manage" target="1.8" />
+      <module name="im-platform" target="1.5" />
+      <module name="im-upload" target="1.5" />
+      <module name="logic-server-sdk" target="1.5" />
+      <module name="xiuxing" target="1.7" />
+      <module name="xiuxing-origin-api" target="1.7" />
+      <module name="xiuxing-origin-common" target="1.7" />
+      <module name="xiuxing-origin-manage" target="1.7" />
+      <module name="xiuxing-origin-provide" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

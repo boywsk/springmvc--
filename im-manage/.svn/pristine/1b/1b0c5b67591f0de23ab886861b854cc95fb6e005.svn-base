@@ -1,0 +1,25 @@
+#用户在线信息redis db
+user.redis.index=0
+#聊天消息分库模值
+msg.db.modulo=64
+#聊天消息分表模值
+msg.table.modulo=2
+#服务器资源redis选择db
+server.resource.redis.index=15
+
+
+#redis cluster测试服务器地址列表;多个用";"分割         非生产环境（包括：测试，开发）
+#redis.cluster.address=10.69.213.181:7000;10.69.213.182:7000;10.69.213.183:7000;10.69.213.184:7000;10.69.213.185:7000;10.69.213.186:7000
+#redis cluster测试服务器地址列表;多个用";"分割  	预生产环境
+#redis.cluster.address=10.125.2.181:7000;10.125.2.182:7000;10.125.2.183:7000;10.125.2.184:7000;10.125.2.185:7000;10.125.2.186:7000
+#redis cluster测试服务器地址列表;多个用";"分割	生产环境
+redis.cluster.address=10.125.8.131:7001;10.125.8.132:7001;10.125.8.133:7001;10.125.8.134:7001;10.125.8.135:7001;10.125.8.136:7001
+
+#center-im-api url  开发环境
+#centerImApiUrl=http://10.125.3.61:8080/center-im-api/
+#center-im-api url  测试环境
+#centerImApiUrl=http://10.69.211.17:8080/center-im-api/
+#center-im-api url 预生产环境
+#centerImApiUrl=http://10.125.2.154:80/center-im-api/
+#center-im-api url 生产环境
+centerImApiUrl=http://10.125.49.61:80/center-im-api/

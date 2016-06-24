@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.im.api.dao.GroupMemberMarkMapper" >
+	<resultMap id="BaseResultMap" type="com.gome.im.api.db.model.GroupMemberMark" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="groupId" property="groupId" jdbcType="VARCHAR" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="markedUid" property="markedUid" jdbcType="BIGINT" />
+		<result column="mark" property="mark" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="BIGINT" />
+  	</resultMap>
+
+  	<insert id="saveGroupMemberMark" parameterType="com.gome.im.api.db.model.GroupMemberMark">
+			insert into tbl_group_member_mark(groupId,uid,markedUid,mark,createTime)
+				values
+			(#{groupId},#{uid},#{markedUid},#{mark},#{createTime})
+	</insert>
+
+	<update id="updateGroupMemberMark" parameterType="com.gome.im.api.db.model.GroupMemberMark">
+		update tbl_group_member_mark set
+		<if test="mark != null">
+			mark=#{mark}
+		</if>
+		 where groupId=#{groupId} and uid=#{uid} and markedUid=#{markedUid}
+	</update>
+
+	<select id="getGroupMemberMark" resultType="com.gome.im.api.db.model.GroupMemberMark" parameterType="map">
+		<![CDATA[
+			select * from tbl_group_member_mark where groupId=#{groupId} and uid = #{uid} and markedUid=#{markedUid}
+		]]>
+	</select>
+
+	<update id="delGroupMemberMark" parameterType="map">
+		delete from tbl_group_member_mark  where groupId=#{groupId} and markedUid=#{markedUid}
+	</update>
+
+	<update id="delAllGroupMemberMark" parameterType="String">
+		delete from tbl_group_member_mark  where groupId=#{groupId}
+	</update>
+
+    <select id="listGroupMemberMark" parameterType="map" resultMap="BaseResultMap">
+		<![CDATA[
+		SELECT * FROM tbl_group_member_mark where 1=1
+		]]>
+		<if test="groupId != null">
+			<![CDATA[
+				and groupId = #{groupId} and uid = #{uid}
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY createTime DESC LIMIT #{start},#{size}
+		]]>
+	</select>
+
+	<select id="countGroupMemberMark" parameterType="map" resultType="java.lang.Integer" >
+		<![CDATA[
+    		select count(*) from tbl_group_member_mark where 1=1
+    	]]>
+		<if test="groupId != null">
+			<![CDATA[
+				and groupId = #{groupId}
+			]]>
+		</if>
+	</select>
+
+</mapper>

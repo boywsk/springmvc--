@@ -1,0 +1,15 @@
+#mq配置
+mq.host=10.125.236.22
+mq.port=5672
+mq.virtualHost=/im-sdk-virtual
+mq.username=imsdk
+mq.password=imsdk
+mq.queueName=ush-queue-sdk-test
+
+# redis配置
+redis_cluster_ip_ports=10.125.3.11:7000,10.125.3.21:7000,10.125.3.31:7000
+
+#mysql 配置
+jdbc.url=jdbc:mysql://10.69.203.241:3306/gomeplus_im?useUnicode=true&amp;characterEncoding=utf-8
+jdbc.username=im_dbuser
+jdbc.password=R1VnDzCN

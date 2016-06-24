@@ -1,0 +1,100 @@
+package com.gomeplus.im.api.request;
+
+import java.io.Serializable;
+
+/**
+ * 好友业务
+ * 
+ * @author lijinpeng
+ *
+ */
+public class ReqFriend implements Serializable {
+	private long userId; // 发起者用户id，申请用户的id
+	private long friendUserId; // 好友用户id，被申请用户的id
+
+	private String userName;// 发起者用户名
+	private String friendUserName;// 好友用户名
+
+	private long userPhoneNumber;// 用户手机号码
+	private long friendPhoneNumber;// 好友手机号码
+
+	private String mark; // 好友标注和备注，uid 对 friendUid 的备注
+	private long friendGroupId;// 好友分组
+	private int status; // 状态;0:未通过,1:通过,2:拒绝
+
+	public ReqFriend() {
+	}
+
+	public long getFriendGroupId() {
+		return friendGroupId;
+	}
+
+	public void setFriendGroupId(long friendGroupId) {
+		this.friendGroupId = friendGroupId;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
+	public long getFriendUserId() {
+		return friendUserId;
+	}
+
+	public void setFriendUserId(long friendUserId) {
+		this.friendUserId = friendUserId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getFriendUserName() {
+		return friendUserName;
+	}
+
+	public void setFriendUserName(String friendUserName) {
+		this.friendUserName = friendUserName;
+	}
+
+	public long getUserPhoneNumber() {
+		return userPhoneNumber;
+	}
+
+	public void setUserPhoneNumber(long userPhoneNumber) {
+		this.userPhoneNumber = userPhoneNumber;
+	}
+
+	public long getFriendPhoneNumber() {
+		return friendPhoneNumber;
+	}
+
+	public void setFriendPhoneNumber(long friendPhoneNumber) {
+		this.friendPhoneNumber = friendPhoneNumber;
+	}
+
+	public String getMark() {
+		return mark;
+	}
+
+	public void setMark(String mark) {
+		this.mark = mark;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+}

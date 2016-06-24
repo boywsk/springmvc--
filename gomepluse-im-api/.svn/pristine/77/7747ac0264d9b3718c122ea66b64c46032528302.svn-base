@@ -1,0 +1,444 @@
+package com.gomeplus.im.api.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.janino.Java.NewAnonymousClassInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import com.gomeplus.im.api.dao.FriendGroupMapper;
+import com.gomeplus.im.api.dao.FriendMapper;
+import com.gomeplus.im.api.dao.UserMapper;
+import com.gomeplus.im.api.global.Constant;
+import com.gomeplus.im.api.model.Friend;
+import com.gomeplus.im.api.model.FriendGroup;
+import com.gomeplus.im.api.model.User;
+import com.gomeplus.im.api.request.ReqFriend;
+import com.gomeplus.im.api.request.response.ResultModel;
+import com.gomeplus.im.api.request.response.RspFriend;
+import com.gomeplus.im.api.service.FriendService;
+import com.gomeplus.im.api.utils.Chinese2Spell;
+import com.gomeplus.im.api.utils.JedisClusterClient;
+
+@Service
+public class FriendServiceImpl implements FriendService {
+	private static final Logger logger = LoggerFactory.getLogger(FriendServiceImpl.class);
+	
+	@Autowired
+	private FriendMapper friendMapper;
+	
+	@Autowired
+	private UserMapper userMapper;
+	
+	@Autowired
+	private FriendGroupMapper friendGroupMapper;
+
+	/**
+	 * 申请添加好友
+	 */
+	@Override
+	public ResultModel<Object> applyAddFriend(ReqFriend reqFriend,String appId,long userId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"参数为空", new HashMap<>());
+		}
+		final long friendUserId = reqFriend.getFriendUserId();
+		
+		if (friendUserId<=0) {
+			logger.error("friendUserId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendUserId参数不正确", new HashMap<>());
+		}
+		
+		if (userId==friendUserId) {
+			logger.error("不允许申请自己为好友");
+			//ZHTODO 申请人添加自己为好友是不允许的  liuzhenhuan 20160607
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"不允许申请自己为好友", new HashMap<>());
+		}
+		
+		try {
+			User friendUser = userMapper.getUserInfoById(friendUserId);
+			if (friendUser == null ) {
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"好友用户不存在", new HashMap<>());
+			}
+			// 检查请求参数，检查好友申请信息是否已经存在
+			HashMap<String, Object> parm = new HashMap<>();
+			parm.put("userId", userId);
+			parm.put("friendUserId", friendUserId);
+			
+			Friend friend = friendMapper.getFriend(parm);
+			if (friend != null) {
+				int status = friend.getStatus();
+				if (status == Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value) {
+					return new ResultModel<Object>(ResultModel.RESULT_OK,"已是好友", new HashMap<>());
+				} else {//ZHTODO 如果是未审核可以，若是已经拒绝，应该把这条记录删除或者更新 liuzhenhuan 20160607
+					return new ResultModel<Object>(ResultModel.RESULT_OK,"好友申请已发出，等待审核通过", new HashMap<>());
+				}
+			}
+			reqFriend.setStatus(Constant.FRIEND_STATUS.E_FRIEND_STATUS_NOT.value);//申请添加新好友时，状态为不通过，即暂时不是好友
+			Friend newFriend = getFriend(reqFriend, userId, friendUser);
+			friendMapper.saveFriend(newFriend);
+			//ZHTODO 是否需要发送消息给好友，暂时显不处理 liuzhenhuan 20160607
+			logger.error("好友申请成功");
+			return new ResultModel<Object>(ResultModel.RESULT_OK, "好友申请成功",new HashMap<>());
+		} catch (Exception e) {
+			logger.error("好友申请失败",e);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "好友申请失败，出现异常",new HashMap<>());
+		}
+	}
+	
+	
+	/**
+	 * 好友申请审核
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public ResultModel<Object> auditFriend(ReqFriend reqFriend,String appId,long userId) {
+
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"参数为空", new HashMap<>());
+		}
+		final long friendUserId = reqFriend.getFriendUserId();
+		if (friendUserId<=0) {
+			logger.error("friendUserId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendUserId不正确", new HashMap<>());
+		}
+		
+		if (userId == friendUserId) { 
+			logger.error("不允许添加自己为好友");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"不允许添加自己为好友", new HashMap<>());
+		}
+		
+		int status = reqFriend.getStatus();
+		if (status!=Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value) {//申请审核不通过
+			logger.error("好友审核意见为不通过");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"好友审核意见为不通过", new HashMap<>());
+		}
+		HashMap<String, Object> parm = new HashMap<>();
+		parm.put("userId", friendUserId);
+		parm.put("friendUserId", userId);
+		Friend friend = friendMapper.getFriend(parm);
+		if (friend==null) {
+			logger.error("未有好友申请，userId:{},friendUserId:{}",userId,friendUserId);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"未有好友申请", new HashMap<>());
+		}
+		if (friend.getStatus()!=Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value) {//如果不是好友，则更新状态
+			friend.setStatus(Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value);
+			friend.setUpdateTime(System.currentTimeMillis());
+			friendMapper.updateFriend(friend);
+		}
+		//保存双向关系
+		HashMap<String, Object> reParm = new HashMap<>();
+		reParm.put("userId", userId);
+		reParm.put("friendUserId", friendUserId);
+		Friend reFriend = friendMapper.getFriend(reParm);
+		if(reFriend!=null){//已经有好友申请
+			if (reFriend.getStatus()==Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value) {//已经是好友
+				logger.info("已经是好友了,userId:{},friendId:{}",userId,friendUserId);
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"已经是好友了", new HashMap<>());
+			}else {
+				//TODO 双发彼此添加另一方为好友，且双方都还没有同意时，一方同意审核，则暂时更新另一条记录，liuzhenhuan 20160614
+				logger.info("已经有好友请求，更新好友请求");
+				reFriend.setStatus(Constant.FRIEND_STATUS.E_FRIEND_STATUS_OK.value);
+				reFriend.setUpdateTime(System.currentTimeMillis());
+				friendMapper.updateFriend(reFriend);
+			}
+		}else {
+			User friendUser=userMapper.getUserInfoById(friendUserId);
+			reFriend=getFriend(reqFriend, userId, friendUser);
+			friendMapper.saveFriend(reFriend);
+		}
+		return new ResultModel<Object>(ResultModel.RESULT_OK,"好友审核成功", new HashMap<>());
+	}
+	
+	
+
+	
+	
+	/**
+	 * 得到好友信息
+	 * @param reqFriend 传递的申请用户的信息
+	 * @param applyUser 申请用户信息
+	 * @param friendUser 好友用户信息
+	 */
+	private Friend getFriend(ReqFriend reqFriend,long applyUserId,User friendUser){
+		Friend friend=new Friend();
+		friend.setUserId(applyUserId);
+		friend.setFriendUserId(friendUser.getId());
+		friend.setFriendNickName(friendUser.getNickName());
+		if (StringUtils.isBlank(friendUser.getNickName())) {
+			friend.setFirstNickNameSpell(StringUtils.EMPTY);
+		}else {
+			friend.setFirstNickNameSpell(Chinese2Spell.converterToFirstSpell(friendUser.getNickName()));
+		}
+		friend.setStatus(reqFriend.getStatus());
+		if (StringUtils.isBlank(reqFriend.getMark())) { //如果好友备注为空，默认取昵称
+			if (StringUtils.isBlank(friendUser.getNickName())) {
+				friend.setMark(StringUtils.EMPTY);
+				friend.setFirstMarkSpell(StringUtils.EMPTY);
+			}else {
+				friend.setMark(Chinese2Spell.converterToFirstSpell(friendUser.getNickName()));
+				friend.setFirstMarkSpell(Chinese2Spell.converterToFirstSpell(friendUser.getNickName()));
+			}
+		}else {
+			friend.setMark(reqFriend.getMark());
+			friend.setFirstMarkSpell(Chinese2Spell.converterToFirstSpell(reqFriend.getMark()));
+		}
+		friend.setFriendGroupId(reqFriend.getFriendGroupId());
+		long nowTime=System.currentTimeMillis();
+		friend.setCreateTime(nowTime);
+		friend.setUpdateTime(nowTime);
+		return friend;
+		
+	}
+	
+	
+
+	/**
+	 * 修改好友备注
+	 */
+	@Override
+	public ResultModel<Object> updateMark(ReqFriend reqFriend,String appId,long userId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"参数为空", new HashMap<>());
+		}
+		final long friendUserId = reqFriend.getFriendUserId();
+		
+		if (friendUserId<=0) {
+			logger.error("friendUserId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendUserId参数不正确", new HashMap<>());
+		}
+		String mark = reqFriend.getMark();
+		if (StringUtils.isBlank(mark)) {
+			logger.error("备注不能为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"备注不能为空", new HashMap<>());
+		}
+		try {
+			HashMap<String, Object> parm = new HashMap<>();
+			parm.put("userId", userId);
+			parm.put("friendUserId", friendUserId);
+			Friend friend = friendMapper.getFriend(parm);
+			if (friend==null) {
+				logger.error("修改好友备注失败，非好友,userId:{},friendUserId:{}",userId,friendUserId);
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改好友备注失败，非好友",new HashMap<>());
+			}
+			friend.setMark(mark);
+			friend.setUpdateTime(System.currentTimeMillis());
+			int updateRowCount = friendMapper.updateFriend(friend);
+			logger.info("更新好友备注记录数：{}",updateRowCount);
+			if (updateRowCount==0) {
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改好友备注失败，可能是非好友",new HashMap<>());
+			}
+			logger.info("修改好友备注成功，userId:{},friendUserId:{},mark:{}",userId,friendUserId,mark);
+			return new ResultModel<Object>(ResultModel.RESULT_OK, "修改好友备注成功",new HashMap<>());
+		} catch (Exception e) {
+			logger.error("修改好友备注失败，出现异常",e);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改好友备注失败",new HashMap<>());
+		}
+	}
+	
+	/**
+	 * 删除好友关系
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public ResultModel<Object> deleteFriend(ReqFriend reqFriend,String appId,long userId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空",new HashMap<>());
+		}
+		final long friendUserId = reqFriend.getFriendUserId();
+		if (friendUserId <= 0) {
+			logger.error("friendUserId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendUserId不正确", new HashMap<>());
+		}
+		
+		// 删除好友双向关系 
+		HashMap<String, Object> parm = new HashMap<>();
+		parm.put("userId", userId);
+		parm.put("friendUserId", friendUserId);
+		
+		HashMap<String, Object> parm2 = new HashMap<>();
+		parm2.put("userId", friendUserId);
+		parm2.put("friendUserId", userId);
+
+		int deleteFriendRowCount = friendMapper.deleteFriend(parm);
+		logger.info("删除好友关系,userId:{},friendUserId:{},rowCount:{}",userId,friendUserId,deleteFriendRowCount);
+		int deleteFriendRowCount2 = friendMapper.deleteFriend(parm2);
+		logger.info("删除好友关系,userId:{},friendUserId:{},rowCount:{}",friendUserId,userId,deleteFriendRowCount2);
+		logger.info("删除好友关系成功");
+		return new ResultModel<Object>(ResultModel.RESULT_OK,"删除好友成功", new HashMap<>());
+	}
+	
+
+	/**
+	 * 获取好友关系列表
+	 */
+	@Override
+	public ResultModel<Object> listFriends(ReqFriend reqFriend,String appId,long userId) {
+		HashMap<String, Object> parm = new HashMap<>();
+		parm.put("userId", userId);
+		if (reqFriend == null) {
+			parm.put("start", 0);
+			parm.put("size", 200);
+		}else {
+			if (reqFriend.getStart()<=0) {
+				parm.put("start", 0);
+			}else {
+				parm.put("start", reqFriend.getStart()-1);
+			}
+			if (reqFriend.getSize()<=0) {
+				parm.put("size", 200);
+			}else {
+				parm.put("size", reqFriend.getSize());
+			}
+		}
+		
+		
+		try {
+			List<Friend> friends = friendMapper.listFriend(parm);
+			if (CollectionUtils.isEmpty(friends)) {
+				logger.error("好友列表为空");
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"好友列表为空", new HashMap<>());
+			}
+			logger.info("好友列表获取成功");
+			return new ResultModel<Object>(ResultModel.RESULT_OK,"获取好友列表成功", getRspFriendList(friends));
+		} catch (Exception e) {
+			logger.error("获取好友列表失败，出现异常",e);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"获取好友列表失败", new HashMap<>());
+		}
+	}
+	
+	private RspFriend getRspFriend(Friend friend){
+		RspFriend rspFriend=new RspFriend();
+		long userId=friend.getFriendUserId();
+		rspFriend.setFriendUserId(userId);
+		String friendNickName = friend.getFriendNickName();
+		String nowNickName = JedisClusterClient.getNowNickName(userId, friendNickName);
+		rspFriend.setFriendNickName(nowNickName);
+		rspFriend.setMark(friend.getMark());
+		rspFriend.setFriendGroupId(friend.getFriendGroupId());
+		return rspFriend;
+	}
+	
+	private List<RspFriend> getRspFriendList(List<Friend> friendList){
+		List<RspFriend> rspFriendList=new ArrayList<RspFriend>();
+		for (Friend friend : friendList) {
+			rspFriendList.add(getRspFriend(friend));
+		}
+		return rspFriendList;
+	}
+
+	@Override
+	public ResultModel<Object> getFriendsByGroupId(ReqFriend reqFriend,String appId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空",new HashMap<>());
+		}
+		final long userId = reqFriend.getUserId();
+		final long friendGroupId = reqFriend.getFriendGroupId();
+
+		if (userId <= 0) {
+			logger.error("userId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"userId不正确", new HashMap<>());
+		}
+		if (friendGroupId < 0) {
+			logger.error("friendGroupId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendGroupId不正确", new HashMap<>());
+		}
+		
+		try {
+			HashMap<String, Object> parm = new HashMap<>();
+			parm.put("userId", reqFriend.getUserId());
+			parm.put("friendGroupId", reqFriend.getFriendGroupId());
+			List<Friend> friends = friendMapper.getFriendsByGroupId(parm);
+			if (CollectionUtils.isEmpty(friends)) {
+				logger.error("好友列表为空,userId:{},groupId:{}",userId,friendGroupId);
+				return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"好友列表为空", new HashMap<>());
+			}
+			logger.info("根据好友分组好友列表获取成功");
+			return new ResultModel<Object>(ResultModel.RESULT_OK,"根据好友分组好友列表获取成功", getRspFriendList(friends));
+		} catch (Exception e) {
+			logger.error("根据好友分组好友列表获取失败，出现异常",e);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"根据好友分组好友列表获取失败", new HashMap<>());
+		}
+	}
+	
+	@Override
+	public ResultModel<Object> getAllFriends(ReqFriend reqFriend,String appId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空",new HashMap<>());
+		}
+		final long userId = reqFriend.getUserId();
+
+		if (userId <= 0) {
+			logger.error("userId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"userId不正确", new HashMap<>());
+		}
+		
+		HashMap<String, Object> parm = new HashMap<>();
+		parm.put("userId", reqFriend.getUserId());
+		List<Friend> friends = friendMapper.allFriends(parm);
+		if (CollectionUtils.isEmpty(friends)) {
+			logger.error("好友列表为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"好友列表为空", new HashMap<>());
+		}
+		logger.info("好友列表获取成功");
+		return new ResultModel<Object>(ResultModel.RESULT_OK,"获取好友列表成功", getRspFriendList(friends));
+	}
+	
+	@Override
+	public ResultModel<Object> updateFriendGroup(ReqFriend reqFriend,String appId) {
+		if (reqFriend == null) {
+			logger.error("参数为空");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空",new HashMap<>());
+		}
+		final long userId = reqFriend.getUserId();
+		final long friendUserId = reqFriend.getFriendUserId();
+		final long friendGroupId = reqFriend.getFriendGroupId();
+
+		if (userId <= 0) {
+			logger.error("userId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"userId不正确", new HashMap<>());
+		}
+		if (friendUserId <= 0) {
+			logger.error("friendUserId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendUserId不正确", new HashMap<>());
+		}
+		if (friendGroupId <0) {
+			logger.error("friendGroupId不正确");
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"friendGroupId不正确", new HashMap<>());
+		}
+		
+		try {
+			//ZHTODO 好友分组0表示默认的分组,总觉得怪怪的，我要修改为好的实现 liuzhenhuan 20160607
+			if (friendGroupId>0) {
+				FriendGroup friendGroup = friendGroupMapper.getFriendGroupById(friendGroupId);
+				if (friendGroup==null) {
+					logger.error("没有此好友分组 ，friendGroupId:{}",friendGroupId);
+					return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"没有此好友分组", new HashMap<>());
+				}
+			}
+			Friend friend=new Friend();
+			friend.setUserId(userId);
+			friend.setFriendUserId(friendUserId);
+			friend.setFriendGroupId(friendGroupId);
+			friendMapper.updateFriend(friend);
+			logger.info("更新好友分组成功");
+			return new ResultModel<Object>(ResultModel.RESULT_OK,"更新好友分组成功", new HashMap<>());
+		} catch (Exception e) {
+			logger.error("更新好友分组失败，出现异常",e);
+			return new ResultModel<Object>(ResultModel.RESULT_FAILURE,"更新好友分组失败", new HashMap<>());
+		}
+	}
+}

@@ -1,0 +1,188 @@
+/*
+Navicat MySQL Data Transfer
+
+Source Server         : 10.125.31.220
+Source Server Version : 50622
+Source Host           : 10.125.31.220:3306
+Source Database       : gomeplus_im
+
+Target Server Type    : MYSQL
+Target Server Version : 50622
+File Encoding         : 65001
+
+Date: 2016-06-01 18:41:08
+*/
+
+CREATE DATABASE IF NOT EXISTS gomeplus_im DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+USE gomeplus_im;
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for tbl_contacts
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_contacts`;
+CREATE TABLE `tbl_contacts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `userId` bigint(20) NOT NULL COMMENT '用户id',
+  `contactName` varchar(64) DEFAULT '' COMMENT '联系人名称',
+  `firstContactNameSpell` varchar(1) DEFAULT '' COMMENT '联系人姓名拼音首字母',
+  `phoneNumber` bigint(20) NOT NULL COMMENT '联系人手机号',
+  `createTime` bigint(20) DEFAULT '0' COMMENT '创建时间',
+  `updateTime` bigint(20) DEFAULT '0' COMMENT '最后一次修改时间',
+  PRIMARY KEY (`id`),
+  KEY `index_userId` (`userId`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_favorites
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_favorites`;
+CREATE TABLE `tbl_favorites` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `userId` bigint(20) NOT NULL COMMENT '用户id',
+  `contentType` tinyint(4) DEFAULT NULL COMMENT '收藏内容类型 1:txt 2:image 3:video',
+  `content` text COMMENT '收藏文案内容',
+  `extra` text COMMENT '收藏图片或小视频地址url',
+  `createTime` bigint(20) DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `index_userId` (`userId`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_friend
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_friend`;
+CREATE TABLE `tbl_friend` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `userId` bigint(20) NOT NULL COMMENT '用户id',
+  `friendUserId` bigint(20) NOT NULL COMMENT '好友用户id',
+  `friendNickName` varchar(64) DEFAULT '' COMMENT '好友昵称',
+  `firstNickNameSpell` varchar(64) DEFAULT '' COMMENT '好友昵称拼音首字母',
+  `status` tinyint(4) DEFAULT '0' COMMENT '状态;0:未通过,1:通过,2:拒绝',
+  `mark` varchar(64) DEFAULT '' COMMENT '好友标注和备注',
+  `firstMarkSpell` varchar(64) DEFAULT '' COMMENT '好友备注拼音首字母',
+  `friendGroupId` bigint(20) DEFAULT '0' COMMENT '好友分组id',
+  `createTime` bigint(20) DEFAULT '0' COMMENT '记录创建时间',
+  `updateTime` bigint(20) DEFAULT '0' COMMENT '记录最后一次修改时间',
+  PRIMARY KEY (`id`),
+  KEY `index_userId` (`userId`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_friend_group
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_friend_group`;
+CREATE TABLE `tbl_friend_group` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键,分组id',
+  `userId` bigint(20) NOT NULL COMMENT '用户id',
+  `groupName` varchar(64) DEFAULT '' COMMENT '分组名称',
+  `createTime` bigint(20) DEFAULT NULL COMMENT '备注时间',
+  `updateTime` bigint(20) DEFAULT NULL COMMENT '最后一次修改时间',
+  PRIMARY KEY (`id`),
+  KEY `index_userId` (`userId`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_group
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_group`;
+CREATE TABLE `tbl_group` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `groupId` varchar(32) NOT NULL COMMENT '群组id',
+  `groupIdHash` bigint(20) NOT NULL COMMENT 'groupIdhash 索引用',
+  `userId` bigint(20) DEFAULT NULL COMMENT '创建者id',
+  `type` tinyint(4) DEFAULT '0' COMMENT '群组类型;1:单聊,2:群聊',
+  `groupName` varchar(64) DEFAULT '' COMMENT '群组名称',
+  `groupDesc` varchar(256) DEFAULT '' COMMENT '群组描述',
+  `avatar` varchar(128) DEFAULT '' COMMENT '群头像',
+  `qRCode` varchar(128) DEFAULT '' COMMENT '二维码',
+  `capacity` int(11) DEFAULT '0' COMMENT '群最大成员数',
+  `isAudit` tinyint(4) NOT NULL DEFAULT '0' COMMENT '申请加入是否需要审核;0:否,1:是',
+  `isTop` tinyint(4) NOT NULL DEFAULT '0' COMMENT '置顶;0:否,1:是',
+  `isDele` tinyint(4) DEFAULT '0' COMMENT '是否被删除;0:否,1:是',
+  `createTime` bigint(20) DEFAULT '0' COMMENT '创建时间',
+  `updateTime` bigint(20) DEFAULT '0' COMMENT '最后一次修改时间',
+  PRIMARY KEY (`id`),
+  KEY `index_groupId` (`groupIdHash`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_group_member
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_group_member`;
+CREATE TABLE `tbl_group_member` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `groupId` varchar(32) DEFAULT NULL COMMENT '群组id',
+  `groupIdHash` bigint(20) DEFAULT NULL COMMENT 'groupIdhash 用于索引',
+  `userId` bigint(20) DEFAULT NULL COMMENT '成员id',
+  `nickName` varchar(64) DEFAULT '' COMMENT '成员昵称',
+  `identity` tinyint(4) DEFAULT NULL,
+  `isTop` tinyint(4) DEFAULT '0' COMMENT '置顶;0:否,1:是',
+  `isShield` tinyint(4) DEFAULT '0' COMMENT '是否屏蔽群消息;0:否,1:是',
+  `status` tinyint(4) DEFAULT '0' COMMENT '0:未通过 1:通过 2:拒绝',
+  `initSeq` bigint(20) DEFAULT '0' COMMENT '加入群时，当前群消息seq',
+  `readSeq` bigint(20) DEFAULT '0' COMMENT '读取到的群消息最大seq',
+  `joinTime` bigint(20) DEFAULT '0' COMMENT '加入时间',
+  PRIMARY KEY (`id`),
+  KEY `index_groupId` (`groupIdHash`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_group_member_mark
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_group_member_mark`;
+CREATE TABLE `tbl_group_member_mark` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `groupId` varchar(32) NOT NULL COMMENT '群主id',
+  `groupIdHash` bigint(20) DEFAULT NULL,
+  `userId` bigint(20) NOT NULL COMMENT '备注人id',
+  `markedUserId` bigint(20) NOT NULL COMMENT '被备注人id',
+  `mark` varchar(64) DEFAULT NULL COMMENT '备注名称',
+  `createTime` bigint(20) DEFAULT NULL COMMENT '备注时间',
+  PRIMARY KEY (`id`),
+  KEY `index_groupId` (`groupIdHash`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tbl_test
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_test`;
+CREATE TABLE `tbl_test` (
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of tbl_test
+-- ----------------------------
+INSERT INTO `tbl_test` VALUES ('1');
+
+-- ----------------------------
+-- Table structure for tbl_user
+-- ----------------------------
+DROP TABLE IF EXISTS `tbl_user`;
+CREATE TABLE `tbl_user` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT ' 主键；uid',
+  `phoneNumber` bigint(20) NOT NULL COMMENT '手机号',
+  `userName` varchar(64) DEFAULT '' COMMENT '用户名；不可重复',
+  `userNameHashId` bigint(20) DEFAULT NULL COMMENT '用户名hash值',
+  `password` varchar(64) DEFAULT '' COMMENT '登录密码',
+  `nickName` varchar(64) DEFAULT '' COMMENT '昵称',
+  `avatar` varchar(128) DEFAULT '' COMMENT '头像地址(小)；根据预先定义规则取大头像',
+  `gender` tinyint(4) DEFAULT '0' COMMENT '性别；1:男,2:女',
+  `region` varchar(16) DEFAULT '' COMMENT '地区',
+  `birthday` bigint(20) DEFAULT '0' COMMENT '生日',
+  `autograph` varchar(256) DEFAULT '' COMMENT '签名',
+  `token` varchar(64) DEFAULT NULL COMMENT '登录token',
+  `tokenValidity` bigint(20) DEFAULT '0' COMMENT '登录token有效期',
+  `hardwareIndentifier` varchar(128) DEFAULT '0' COMMENT '硬件信息',
+  `osIdentifier` varchar(128) DEFAULT '0' COMMENT '软件信息',
+  `deviceId` varchar(128) DEFAULT '0' COMMENT '设备号',
+  `createTime` bigint(20) DEFAULT '0' COMMENT '创建时间',
+  `updateTime` bigint(20) DEFAULT '0' COMMENT '最后一次修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_id` (`id`) USING HASH,
+  KEY `index_userNameHashId` (`userNameHashId`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

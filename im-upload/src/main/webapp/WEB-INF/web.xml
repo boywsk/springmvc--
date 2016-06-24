@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+	http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" 
+	id="WebApp_ID" version="3.1">
+
+  <display-name>im-upload</display-name>
+  
+  <!-- <servlet>
+		<servlet-name>UploadServlet</servlet-name>
+		<servlet-class>javax.servlet.http.HttpServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>UploadServlet</servlet-name>
+      	<url-pattern>*.do</url-pattern>
+	</servlet-mapping> -->
+  
+  <servlet>
+		<!-- 定义的servlet应用名字 -->
+		<servlet-name>ImageUploadServlet</servlet-name>
+		<!-- 定义的servlet应用名字对应的具体servlet文件 -->
+		<servlet-class>com.gome.im.upload.controller.ImageUploadServlet</servlet-class>
+	</servlet>
+	<!-- 地址映射 -->
+	<servlet-mapping>
+		<!-- 定义的servlet应用名字 -->
+      	<servlet-name>ImageUploadServlet</servlet-name>
+		<!-- 地址名 -->
+      	<url-pattern>/ImageUploadServlet.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<!-- 定义的servlet应用名字 -->
+		<servlet-name>ImageDownloadServlet</servlet-name>
+		<!-- 定义的servlet应用名字对应的具体servlet文件 -->
+		<servlet-class>com.gome.im.upload.controller.ImageDownloadServlet</servlet-class>
+	</servlet>
+	<!-- 地址映射 -->
+	<servlet-mapping>
+		<!-- 定义的servlet应用名字 -->
+      	<servlet-name>ImageDownloadServlet</servlet-name>
+		<!-- 地址名 -->
+      	<url-pattern>/ImageDownloadServlet</url-pattern>
+	</servlet-mapping>
+	 
+	<servlet>
+		<servlet-name>VoiceUploadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.VoiceUploadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>VoiceUploadServlet</servlet-name>
+      	<url-pattern>/VoiceUploadServlet.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>VoiceDownloadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.VoiceDownloadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>VoiceDownloadServlet</servlet-name>
+      	<url-pattern>/VoiceDownloadServlet</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>VedioUploadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.VedioUploadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>VedioUploadServlet</servlet-name>
+      	<url-pattern>/VedioUploadServlet.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>VedioDownloadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.VedioDownloadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>VedioDownloadServlet</servlet-name>
+      	<url-pattern>/VedioDownloadServlet</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AvatarUploadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.AvatarUploadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>AvatarUploadServlet</servlet-name>
+      	<url-pattern>/AvatarUploadServlet.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AvatarDownloadServlet</servlet-name>
+		<servlet-class>com.gome.im.upload.controller.AvatarDownloadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+      	<servlet-name>AvatarDownloadServlet</servlet-name>
+      	<url-pattern>/AvatarDownloadServlet.do</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 日志记录 -->
+	<context-param>
+		<param-name>logbackConfigLocation</param-name>
+		<param-value>classpath:logback.xml</param-value>
+	</context-param>
+	<welcome-file-list>	    
+	  <!-- <welcome-file>/jsp/upload/imageFileUpload.jsp</welcome-file> -->
+	  <welcome-file>/jsp/upload/voiceFileUpload.jsp</welcome-file>
+	</welcome-file-list>
+  
+</web-app>

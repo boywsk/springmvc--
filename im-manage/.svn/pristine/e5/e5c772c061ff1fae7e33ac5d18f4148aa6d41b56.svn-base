@@ -1,0 +1,10 @@
+#redis服务器地址
+logic.server.redis.address=10.125.3.31
+#redis服务器端口
+logic.server.redis.port=6379
+#redis密码
+#offline.server.redis.pass=gome
+#redis选择db
+logic.server.redis.index=0
+#用户在线信息在redis中过期时间；每次心跳都要重新刷新该信息；单位秒
+online.redis.expire=600

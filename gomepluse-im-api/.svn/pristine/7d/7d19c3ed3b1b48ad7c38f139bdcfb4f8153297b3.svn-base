@@ -1,0 +1,168 @@
+package com.gomeplus.im.api.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import com.gomeplus.im.api.dao.FriendGroupMapper;
+import com.gomeplus.im.api.dao.FriendMapper;
+import com.gomeplus.im.api.global.Constant;
+import com.gomeplus.im.api.model.FriendGroup;
+import com.gomeplus.im.api.request.ReqFriendGroup;
+import com.gomeplus.im.api.request.response.ResultModel;
+import com.gomeplus.im.api.service.FriendGroupService;
+
+@Service
+public class FriendGroupServiceImpl implements FriendGroupService {
+    private static final Logger logger = LoggerFactory.getLogger(FriendGroupServiceImpl.class);
+
+    @Autowired
+    private FriendGroupMapper friendGroupMapper;
+    
+    @Autowired
+    private FriendMapper friendMapper;
+
+    @Override
+    public ResultModel<Object> addFriendGroup(ReqFriendGroup reqFriendGroup) {
+    	if (reqFriendGroup==null) {
+			logger.error("参数为空");
+			return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空", new HashMap<>());
+    	}
+    	long userId = reqFriendGroup.getUserId();
+    	String groupName = reqFriendGroup.getGroupName();
+    	if (userId<=0) {
+    		logger.error("userId不正确");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "userId不正确", new HashMap<>());
+		}
+    	if(StringUtils.isBlank(groupName)){
+    		logger.error("groupName为空");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "groupName为空", new HashMap<>());
+    	}
+    	
+    	FriendGroup friendGroup=new FriendGroup();
+    	friendGroup.setUserId(userId);
+    	friendGroup.setGroupName(groupName);
+    	long nowTime=System.currentTimeMillis();
+		friendGroup.setCreateTime(nowTime);
+		friendGroup.setUpdateTime(nowTime);
+		try {
+			friendGroupMapper.saveFriendGroup(friendGroup);
+    		logger.info("添加好友分组成功");
+    		return  new ResultModel<Object>(ResultModel.RESULT_OK, "添加好友分组成功",friendGroup);
+
+		} catch (Exception e) {
+			logger.error("添加好友分组失败，出现异常",e);
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "添加好友分组失败", new HashMap<>());
+		}
+    } 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public ResultModel<Object> deleteFriendGroup(ReqFriendGroup reqFriendGroup) {
+    	if (reqFriendGroup==null) {
+			logger.error("参数为空");
+			return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空", new HashMap<>());
+    	}
+    	long id = reqFriendGroup.getId();
+    	if (id<=0) {
+    		logger.error("Id不正确");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "Id不正确", new HashMap<>());
+		}
+    	
+    	
+    	try {
+    		//同时更新给分组下的所有好友的信息
+    		HashMap<String, Object> parm=new HashMap<String, Object>();
+    		
+    		parm.put("newFriendGroupId", Constant.DEFAULT_FRIEND_GROUP_ID);
+    		parm.put("oldFriendGroupId", id);
+    		friendMapper.updateFriendByGroupId(parm);
+
+    		friendGroupMapper.deleteFriendGroupById(id);
+			
+    		logger.info("删除好友分组成功");
+    		return new ResultModel<Object>(ResultModel.RESULT_OK, "删除好友分组成功", new HashMap<>());
+
+		} catch (Exception e) {
+			logger.error("删除好友分组失败，出现异常",e);
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "删除好友分组失败", new HashMap<>());
+		}
+    }
+    @Transactional(isolation=Isolation.READ_COMMITTED)
+    @Override
+    public ResultModel<Object> getFriendGroup(ReqFriendGroup reqFriendGroup) {
+    	if (reqFriendGroup==null) {
+			logger.error("参数为空");
+			return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空", new HashMap<>());
+    	}
+    	long userId = reqFriendGroup.getUserId();
+    	if (userId<=0) {
+    		logger.error("userId不正确");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "userId不正确", new HashMap<>());
+		}
+    	
+    	try {
+			List<FriendGroup> friendGroupList = friendGroupMapper.getFriendGroupByUserId(userId);
+			if (CollectionUtils.isEmpty(friendGroupList)) {
+				logger.error("此人目前没有创建任何好友分组，userId:{}",userId);
+				return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "此人目前没有创建任何好友分组", new HashMap<>());
+			}
+    		logger.info("查找好友分组成功");
+    		return  new ResultModel<Object>(ResultModel.RESULT_OK, "查找好友分组成功",friendGroupList);
+
+		} catch (Exception e) {
+			logger.error("查找好友分组失败，出现异常",e);
+			return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "查找好友分组失败", new HashMap<>());
+		}
+    }
+    @Override
+    public ResultModel<Object> updateFriendGroup(ReqFriendGroup reqFriendGroup) {
+    	if (reqFriendGroup==null) {
+			logger.error("参数为空");
+			return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数为空", new HashMap<>());
+    	}
+    	long id = reqFriendGroup.getId();
+    	if (id<=0) {
+    		logger.error("Id不正确");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "Id不正确", new HashMap<>());
+		}
+    	String groupName = reqFriendGroup.getGroupName();
+    	if (StringUtils.isBlank(groupName)) {
+    		logger.error("groupName为空");
+    		return  new ResultModel<Object>(ResultModel.RESULT_FAILURE, "groupName为空", new HashMap<>());
+		}
+    	try {
+    		//ZHTODO 在update前先查一遍数据库，update时会再查找一边数据库，这样会多一遍查询，
+    		//由于判断id的记录是否存在，需要给出id不存在的提示，需要先查数据库，暂时先这么做 ，如果影响到性能，
+    		//会牺牲这个提示，即直接更新数据库，之前不在查询。update的返回值是跟新记录数，使用这个可以判断是否更新成功，
+    		//但是不能肯定是id不存在的情况，相比之下，暂时先这么做。                     liuzhenhuan 20160607
+    		FriendGroup friendGroup = friendGroupMapper.getFriendGroupById(id);
+    		if(friendGroup==null){
+    			logger.error("id不存在，id: {}",id);
+    			return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "id不存在", new HashMap<>());
+    		}
+    		
+			friendGroup.setGroupName(reqFriendGroup.getGroupName());
+			friendGroup.setUpdateTime(System.currentTimeMillis());
+			
+			
+			friendGroupMapper.updateFriendGroupById(friendGroup);
+    		logger.info("修改好友分组成功");
+    		return new ResultModel<Object>(ResultModel.RESULT_OK, "修改好友分组成功", friendGroup);
+
+		} catch (Exception e) {
+			logger.error("修改好友分组失败，出现异常",e);
+    		return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改好友分组失败", new HashMap<>());
+		}
+    }
+
+
+}

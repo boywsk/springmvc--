@@ -1,0 +1,772 @@
+package com.gomeplus.im.api.service.impl;
+
+import com.gomeplus.im.api.dao.GroupMapper;
+import com.gomeplus.im.api.dao.GroupMemberMapper;
+import com.gomeplus.im.api.dao.GroupMemberMarkMapper;
+import com.gomeplus.im.api.dao.UserMapper;
+import com.gomeplus.im.api.global.Constant;
+import com.gomeplus.im.api.model.Group;
+import com.gomeplus.im.api.model.GroupMember;
+import com.gomeplus.im.api.model.GroupMemberMark;
+import com.gomeplus.im.api.model.User;
+import com.gomeplus.im.api.request.ReqGroup;
+import com.gomeplus.im.api.request.response.*;
+import com.gomeplus.im.api.service.GroupService;
+import com.gomeplus.im.api.threadPool.ThreadPool;
+import com.gomeplus.im.api.utils.StringUtils;
+import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+@Service
+public class GroupServiceImpl implements GroupService {
+
+    Logger log = LoggerFactory.getLogger(GroupServiceImpl.class);
+
+    @Autowired
+    private GroupMapper groupMapper;
+    @Autowired
+    private GroupMemberMapper groupMemberMapper;
+    @Autowired
+    private GroupMemberMarkMapper groupMemberMarkMapper;
+    @Autowired
+    private UserMapper userMapper;
+
+    /**
+     * 创建群组
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public ResultModel<Object> addGroup(ReqGroup reqGroup) {
+        String groupId = StringUtils.getUuid();
+        System.out.println("群组groupId:" + groupId);
+        long uid = reqGroup.getUserId();
+        User user = userMapper.getUserInfoById(uid);
+        String nikeName = reqGroup.getNickName();
+        if (user == null) {
+            return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "创建失败,用户不存在", new HashMap<>());
+        }
+        String groupName = reqGroup.getGroupName();
+        String desc = reqGroup.getDesc();
+        String avatar = reqGroup.getAvatar();
+        int capacity = reqGroup.getCapacity();
+        if (capacity <= 0) {//暂时默认200
+            capacity = 200;
+        }
+        int isAudit = reqGroup.getIsAudit();
+        List<Member> members = reqGroup.getMembers();
+        if (members == null) {
+            members = new ArrayList<>();
+        }
+        List<GroupMember> groupMemberList = new ArrayList<>();
+        long time = System.currentTimeMillis();
+        int status = 1;
+        GroupMember owner = new GroupMember();
+        owner.setUserId(uid);
+        owner.setNickName(nikeName);
+        owner.setGroupId(groupId);
+        owner.setIsTop(0);//不置顶
+        owner.setIsShield(0); //不屏蔽群消息
+        owner.setStatus(status);
+        owner.setJoinTime(time);
+        groupMemberList.add(0, owner);
+        //保存群成员
+        for (Member m : members) {
+            GroupMember member = new GroupMember();
+            member.setUserId(m.getUserId());
+            member.setNickName(m.getUserName());
+            member.setGroupId(groupId);
+            member.setIsTop(0);//不置顶
+            member.setIsShield(0); //不屏蔽群消息
+            member.setStatus(status);
+            member.setJoinTime(time);
+            groupMemberList.add(member);
+        }
+        groupMemberMapper.saveGroupMemberBatch(groupMemberList);
+        //保存群组信息
+        Group group = new Group();
+        group.setGroupId(groupId);
+        group.setUserId(uid);
+        group.setCapacity(capacity);
+        group.setIsAudit(isAudit);
+        group.setIsTop(0);
+        group.setIsDele(0);
+        StringBuilder builder = new StringBuilder();
+        if (Strings.isNullOrEmpty(groupName)) {
+            for (int i = 0; i < groupMemberList.size(); i++) {
+                GroupMember member = groupMemberList.get(i);
+                if (i != 1) {
+                    String nickName = member.getNickName();
+                    if (builder.length() > 0) {
+                        builder.append("、");
+                        builder.append(nickName);
+                    } else {
+                        builder.append(nickName);
+                    }
+                }
+            }
+            groupName = builder.substring(0, 60) + "......";
+        }
+        group.setGroupDesc(desc);
+        group.setType(2);
+        group.setGroupName(groupName);
+        group.setqRcode(reqGroup.getqRCode());
+        group.setAvatar(avatar);
+        group.setCreateTime(time);
+        group.setUpdateTime(time);
+        groupMapper.saveGroup(group);
+        ThreadPool pool = ThreadPool.getInstance();
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "创建成功", new HashMap<>());
+        return resultModel;
+    }
+
+    /**
+     * 加入群
+     */
+    public ResultModel<Object> joinGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "加入失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long senderId = reqGroup.getUserId();
+            String nickName = reqGroup.getNickName();
+            long time = System.currentTimeMillis();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            int isAudit = group.getIsAudit();
+            int status = Constant.GROUP_STATUS.E_GROUP_STATUS_NOT.value;
+            boolean isSave = false;
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", senderId);
+            GroupMember member = groupMemberMapper.getGroupMember(parmMap);
+            if (member == null) {
+                isSave = true;
+                //不需要审核
+                if (isAudit == Constant.GROUP_AUDIT.E_GROUP_AUDIT_NOT.value) {
+                    status = Constant.GROUP_STATUS.E_GROUP_STATUS_OK.value;
+                }
+            } else {
+                int oldStatus = member.getStatus();
+                //等待审核或者已经是成员
+                if (oldStatus == Constant.GROUP_STATUS.E_GROUP_STATUS_NOT.value) {
+                    return new ResultModel<Object>(ResultModel.RESULT_OK, "等待管理员审核", new HashMap<>());
+                } else if (oldStatus == Constant.GROUP_STATUS.E_GROUP_STATUS_OK.value) {
+                    return new ResultModel<Object>(ResultModel.RESULT_OK, "已经加入该群", new HashMap<>());
+                }
+            }
+            if (isSave) {
+                member = new GroupMember();
+                member.setGroupId(groupId);
+                member.setUserId(senderId);
+                member.setNickName(nickName);
+                member.setStatus(status);
+                member.setJoinTime(time);
+                member.setIsTop(0);
+                member.setIsShield(0);
+                member.setInitSeq(0);
+                member.setReadSeq(0);
+                List<GroupMember> list = new ArrayList<>();
+                list.add(member);
+                groupMemberMapper.saveGroupMemberBatch(list);
+            }
+            ThreadPool pool = ThreadPool.getInstance();
+            if (isAudit == Constant.GROUP_AUDIT.E_GROUP_AUDIT_NEED.value) {
+                //需要审核;通知管理员审核;保存系统消息
+                //  TODO    发送个人消息，通知群创建者
+                return new ResultModel<Object>(ResultModel.RESULT_OK, "等待管理员审核", new HashMap<>());
+            } else {
+                //不需要审核全群通知;存离线消息
+                //  TODO    发送群组消息，通知全群
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "加入成功", group);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 邀请加入群
+     */
+    public ResultModel<Object> inviteGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "邀请失败", new HashMap<>());
+        try {
+            List<Member> members = reqGroup.getMembers();
+            if (members == null || members.size() <= 0) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            long time = System.currentTimeMillis();
+            String groupId = reqGroup.getGroupId();
+            long inviterUid = reqGroup.getUserId();
+            String senderName = reqGroup.getNickName();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            int isAudit = group.getIsAudit();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", inviterUid);
+            GroupMember member = groupMemberMapper.getGroupMember(parmMap);
+            if (member == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            List<GroupMember> groupMemberList = new ArrayList<GroupMember>();
+            //不需要审核;管理员邀请加入
+            if (isAudit == Constant.GROUP_AUDIT.E_GROUP_AUDIT_NOT.value || group.getUserId() == inviterUid) {
+                int status = Constant.GROUP_STATUS.E_GROUP_STATUS_OK.value;
+                for (Member m : members) {
+                    GroupMember groupMember = new GroupMember();
+                    groupMember.setUserId(m.getUserId());
+                    groupMember.setNickName(m.getUserName());
+                    groupMember.setGroupId(groupId);
+                    groupMember.setIsTop(0);//不置顶
+                    groupMember.setIsShield(0); //不屏蔽群消息
+                    groupMember.setStatus(status);
+                    groupMember.setJoinTime(time);
+                    parmMap.put("uid", m.getUserId());
+                    GroupMember oldMember = groupMemberMapper.getGroupMember(parmMap);
+                    if (oldMember == null) {
+                        groupMemberList.add(groupMember);
+                    }
+                }
+                groupMemberMapper.saveGroupMemberBatch(groupMemberList);
+                log.info("members size=[{}]", members.size());
+                if (members.size() > 0) {
+                    ThreadPool pool = ThreadPool.getInstance();
+                    //  TODO    发送消息通知邀请成功
+                }
+                return new ResultModel<Object>(ResultModel.RESULT_OK, "邀请成功", new HashMap<>());
+            } else {//需要审核
+                //普通成员邀请；发消息给管理审核
+                int status = Constant.GROUP_STATUS.E_GROUP_STATUS_NOT.value;
+                for (Member m : members) {
+                    GroupMember groupMember = new GroupMember();
+                    groupMember.setUserId(m.getUserId());
+                    groupMember.setNickName(m.getUserName());
+                    groupMember.setGroupId(groupId);
+                    groupMember.setIsTop(0);//不置顶
+                    groupMember.setIsShield(0); //不屏蔽群消息
+                    groupMember.setStatus(status);
+                    groupMember.setJoinTime(time);
+                    groupMemberList.add(member);
+                }
+                groupMemberMapper.saveGroupMemberBatch(groupMemberList);
+                ThreadPool pool = ThreadPool.getInstance();
+                for (GroupMember m : groupMemberList) {
+                    String name = m.getNickName();
+                    String message = senderName + "邀请" + name + "加入群聊等待您的审核";
+                    long uid = m.getUserId();
+                    //  TODO    发送个人消息，通知群创建者
+                }
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "邀请成功", new HashMap<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultModel;
+    }
+
+    /**
+     * 退出群
+     */
+    public ResultModel<Object> quitGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "退出群失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            if (uid == group.getUserId()) {
+                //群主退出时，调用解散群接口
+                disbandGroup(reqGroup);
+            }
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember member = groupMemberMapper.getGroupMember(parmMap);
+            if (member == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            //删除成员
+            groupMemberMapper.delGroupMember(parmMap);
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            parm.put("markedUid", uid);
+            //删除对该群组成员的备注
+            groupMemberMarkMapper.delGroupMemberMark(parm);
+
+            //消息全群广播
+            ThreadPool pool = ThreadPool.getInstance();
+            //  TODO    群组内广播通知群组成员退出
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "操作成功", reqGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultModel;
+    }
+
+    /**
+     * 踢人
+     */
+    public ResultModel<Object> kickGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "踢人失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            List<Member> members = reqGroup.getMembers();
+            if (members == null || members.size() <= 0) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            long uid = reqGroup.getUserId();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember creater = groupMemberMapper.getGroupMember(parmMap);
+            if (creater == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            if (group.getUserId() != creater.getUserId()) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "无权限", new HashMap<>());
+            }
+
+            //删除群组成员,以及群组内对成员的备注
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            for (Member member : members) {
+                parmMap.put("uid", member.getUserId());
+                groupMemberMapper.delGroupMember(parmMap);
+                parm.put("markedUid", member.getUserId());
+                groupMemberMarkMapper.delGroupMemberMark(parm);
+            }
+            log.info("members size=[{}]", members.size());
+            if (members.size() > 0) {
+                ThreadPool pool = ThreadPool.getInstance();
+                List<Long> imUserIdList = new ArrayList<>();
+                String content = "";
+                for (Member m : members) {
+                    imUserIdList.add(m.getUserId());
+                    content += m.getUserName() + " ";
+                }
+                String finalContent = content + "被移除群组";
+                //  TODO    发送群组消息通知
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "操作成功", reqGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 修改群信息
+     */
+    public ResultModel<Object> editGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            long uid = reqGroup.getUserId();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember user = groupMemberMapper.getGroupMember(parmMap);
+            if (user == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+//            if (user.getUid() != group.getUid()) {
+//                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "无权限", new HashMap<>());
+//            }
+            //修改群信息
+            group.setGroupName(reqGroup.getGroupName());
+            group.setGroupDesc(reqGroup.getDesc());
+            group.setAvatar(reqGroup.getAvatar());
+            group.setqRcode(reqGroup.getqRCode());
+            group.setCapacity(reqGroup.getCapacity());
+            group.setIsAudit(reqGroup.getIsAudit());
+            groupMapper.updateGroup(group);
+            ThreadPool pool = ThreadPool.getInstance();
+            //  TODO    发送群组通知，
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "修改成功", reqGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 解散群
+     */
+    public ResultModel<Object> disbandGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "操作失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            long uid = reqGroup.getUserId();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember creater = groupMemberMapper.getGroupMember(parmMap);
+            if (creater == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            if (creater.getUserId() != group.getUserId()) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "无权限", new HashMap<>());
+            }
+
+            List<Long> memberIds = new ArrayList<>();
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            parm.put("start", 0);
+            parm.put("size", 200);
+            List<GroupMember> groupMemberList = groupMemberMapper.listGroupMember(parm);
+            for (GroupMember m : groupMemberList) {
+                memberIds.add(m.getUserId());
+            }
+            groupMapper.delGroup(groupId);
+            groupMemberMapper.delAllGroupMember(groupId);
+            groupMemberMarkMapper.delAllGroupMemberMark(groupId);
+            log.info("memberIds size=[{}]", memberIds.size());
+            if (memberIds.size() > 0) {
+                ThreadPool pool = ThreadPool.getInstance();
+                //  TODO    群组广播群组解散
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "群组解散成功", reqGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 审核群成员
+     *
+     * @param reqGroup
+     * @return
+     */
+    public ResultModel<Object> auditMember(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "审核失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            List<Member> members = reqGroup.getMembers();
+            if (members == null || members.size() <= 0) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            long uid = reqGroup.getUserId();
+            String nickName = reqGroup.getNickName();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember sender = groupMemberMapper.getGroupMember(parmMap);
+            if (sender == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            if (sender.getUserId() != group.getUserId()) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "无权限", new HashMap<>());
+            }
+            int status = reqGroup.getStatus();
+            String content = "加入群组:" + group.getGroupName();
+            ThreadPool pool = ThreadPool.getInstance();
+            if (status == 1) {
+                //如果审核通过，调用api加入将该通过的成员加入群组
+                try {
+                    for (Member m : members) {
+                        HashMap<String, Object> parm = new HashMap<>();
+                        parm.put("groupId", groupId);
+                        parm.put("uid", m.getUserId());
+                        GroupMember groupMember = groupMemberMapper.getGroupMember(parm);
+                        if (groupMember == null) {
+                            continue;
+                        }
+                        if (status != groupMember.getStatus()) {
+                            groupMember.setStatus(status);
+                            groupMemberMapper.updateGroupMember(groupMember);
+                        }
+                        //发送个人消息，通知群创建者审核
+                        String finalContent = content;
+                    }
+                    //  TODO    发送消息通知成员加入群组审核通过
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error(e.getMessage());
+                }
+            } else {
+                log.info("审核未通过,groupId:{},群主uid:{}", groupId, uid);
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "操作成功", new HashMap<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 获取群组信息
+     */
+    public ResultModel<Object> getGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "获取失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            Group group = groupMapper.getGroup(groupId);
+            if (group == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember member = groupMemberMapper.getGroupMember(parmMap);
+            if (member == null) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "参数错误", new HashMap<>());
+            }
+            RspGroup repGroup = group2Rsp(group);
+            //repGroup.setInitSeq(member.getInitSeq());
+            //repGroup.setReadSeq(member.getReadSeq());
+            repGroup.setIsTop(member.getIsTop());
+            repGroup.setIsShield(member.getIsShield());
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            parm.put("start", 0);
+            parm.put("size", 200);
+            List<GroupMember> groupMemberList = groupMemberMapper.listGroupMember(parm);
+            parm.put("uid", uid);
+            List<GroupMemberMark> listMemberMark = groupMemberMarkMapper.listGroupMemberMark(parm);
+            List<RspGroupMember> list = new ArrayList<>();
+            for (GroupMember m : groupMemberList) {
+                RspGroupMember rspMember = member2Rsp(m);
+                for (GroupMemberMark memberMark : listMemberMark) {
+                    if (m.getUserId() == memberMark.getMarkedUserId()) {
+                        rspMember.setMark(memberMark.getMark());
+                        break;
+                    }
+                }
+                list.add(rspMember);
+            }
+            repGroup.setMembers(list);
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "获取群组信息成功", repGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 获取群组列表信息
+     */
+    public ResultModel<Object> listGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "获取失败", new HashMap<>());
+        try {
+            List<RspGroup> list = new ArrayList<RspGroup>();
+            long uid = reqGroup.getUserId();
+            List<GroupMember> groupMemberList = groupMemberMapper.memberGroups(uid);
+            for (GroupMember member : groupMemberList) {
+                Group group = groupMapper.getGroup(member.getGroupId());
+                RspGroup repGroup = group2Rsp(group);
+                repGroup.setIsTop(member.getIsTop());
+                repGroup.setIsShield(member.getIsShield());
+                list.add(repGroup);
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "成功", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 修改群成员备注
+     */
+    public ResultModel<Object> editMemberMark(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "修改失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            long markId = reqGroup.getMarkedUserId();
+            String mark = reqGroup.getMark();
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            parm.put("uid", uid);
+            parm.put("markedUid", markId);
+            GroupMemberMark memberMark = groupMemberMarkMapper.getGroupMemberMark(parm);
+            if (memberMark == null) {
+                memberMark = new GroupMemberMark();
+                memberMark.setGroupId(groupId);
+                memberMark.setUserId(uid);
+                memberMark.setMarkedUserId(markId);
+                memberMark.setMark(mark);
+                memberMark.setCreateTime(System.currentTimeMillis());
+                groupMemberMarkMapper.saveGroupMemberMark(memberMark);
+            } else {
+                if (!mark.equals(memberMark.getMark())) {
+                    memberMark.setMark(mark);
+                    groupMemberMarkMapper.updateGroupMemberMark(memberMark);
+                }
+            }
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "修改成功", reqGroup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 获取群组成员
+     *
+     * @param reqGroup
+     * @return
+     */
+    public ResultModel<Object> listGroupMember(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "获取失败", new HashMap<>());
+        try {
+            List<RspGroupMember> rspMembers = new ArrayList<RspGroupMember>();
+            List<RspMemberMark> rspMemberMarks = new ArrayList<>();
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            HashMap<String, Object> parm = new HashMap<>();
+            parm.put("groupId", groupId);
+            parm.put("start", 0);
+            parm.put("size", 200);
+            List<GroupMember> groupMemberList = groupMemberMapper.listGroupMember(parm);
+            boolean isGroupMember = false;
+            for (GroupMember member : groupMemberList) {
+                if (member.getUserId() == uid) {
+                    isGroupMember = true;
+                }
+                RspGroupMember rspMember = member2Rsp(member);
+                rspMembers.add(rspMember);
+            }
+            parm.put("uid", uid);
+            List<GroupMemberMark> listMemberMark = groupMemberMarkMapper.listGroupMemberMark(parm);
+            for (GroupMemberMark groupMemberMark : listMemberMark) {
+                RspMemberMark rspMemberMark = new RspMemberMark();
+                rspMemberMark.setMarkedUserId(groupMemberMark.getMarkedUserId());
+                rspMemberMark.setMark(groupMemberMark.getMark());
+                rspMemberMarks.add(rspMemberMark);
+            }
+            if (!isGroupMember) {
+                return new ResultModel<Object>(ResultModel.RESULT_FAILURE, "无权限获取信息", new HashMap<>());
+            }
+            HashMap<String, Object> rsp = new HashMap<>();
+            rsp.put("groupId", groupId);
+            rsp.put("members", rspMembers);
+            rsp.put("memberMarks", rspMemberMarks);
+            resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "操作成功", rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 设置屏蔽群消息
+     */
+    public ResultModel<Object> shieldGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "设置失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            int isShield = reqGroup.getIsShield();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember groupMember = groupMemberMapper.getGroupMember(parmMap);
+            if (groupMember != null) {
+                if (groupMember.getIsShield() != isShield) {
+                    groupMember.setIsShield(isShield);
+                    groupMemberMapper.updateGroupMember(groupMember);
+                }
+                resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "设置成功", new HashMap<>());
+            } else {
+                resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "成员不存在", new HashMap<>());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    /**
+     * 设置群置顶
+     */
+    public ResultModel<Object> sickiesGroup(ReqGroup reqGroup) {
+        ResultModel<Object> resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "设置失败", new HashMap<>());
+        try {
+            String groupId = reqGroup.getGroupId();
+            long uid = reqGroup.getUserId();
+            int isTop = reqGroup.getIsTop();
+            HashMap<String, Object> parmMap = new HashMap<>();
+            parmMap.put("groupId", groupId);
+            parmMap.put("uid", uid);
+            GroupMember groupMember = groupMemberMapper.getGroupMember(parmMap);
+            if (groupMember != null) {
+                if (groupMember.getIsTop() != isTop) {
+                    groupMember.setIsTop(isTop);
+                    groupMemberMapper.updateGroupMember(groupMember);
+                }
+                resultModel = new ResultModel<Object>(ResultModel.RESULT_OK, "设置成功", new HashMap<>());
+            } else {
+                resultModel = new ResultModel<Object>(ResultModel.RESULT_FAILURE, "成员不存在", new HashMap<>());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return resultModel;
+    }
+
+    public static RspGroupMember member2Rsp(GroupMember member) {
+        RspGroupMember rspMember = new RspGroupMember();
+        rspMember.setUserId(member.getUserId());
+        rspMember.setNickName(member.getNickName());
+        rspMember.setJoinTime(member.getJoinTime());
+        return rspMember;
+    }
+
+    public static RspGroup group2Rsp(Group group) {
+        RspGroup rspGroup = new RspGroup();
+        rspGroup.setGroupId(group.getGroupId());
+        rspGroup.setUserId(group.getUserId());
+        rspGroup.setGroupName(group.getGroupName());
+        rspGroup.setAvatar(group.getAvatar());
+        rspGroup.setDesc(group.getGroupDesc());
+        rspGroup.setCapacity(group.getCapacity());
+        rspGroup.setIsAudit(group.getIsAudit());
+        rspGroup.setqRCode(group.getqRcode());
+        return rspGroup;
+    }
+
+}

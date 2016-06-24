@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="xiuxing-origin-manage:war">
+    <output-path>E:/bootstrap_manage/Bootstrap_Java_Web_Manage-master/xiuxing/xiuxing-origin-manage/target</output-path>
+    <root id="archive" name="xiuxing-origin-manage.war">
+      <element id="artifact" artifact-name="xiuxing-origin-manage:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,17 @@
+package com.gomeplus.im.api.request;
+
+import java.io.Serializable;
+
+public class ReqFindUser implements Serializable{
+	private String keyWord;
+
+	public String getKeyWord() {
+		return keyWord;
+	}
+
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
+	
+
+}

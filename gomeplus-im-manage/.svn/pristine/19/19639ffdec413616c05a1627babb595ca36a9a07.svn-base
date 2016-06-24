@@ -1,0 +1,28 @@
+package com.gomeplus.im.manage.service.impl;
+
+import com.gomeplus.im.manage.dao.FriendMapper;
+import com.gomeplus.im.manage.model.Friend;
+import com.gomeplus.im.manage.service.FriendService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by wangshikai on 2016/6/3.
+ */
+@Service
+public class FriendServiceImpl implements FriendService{
+
+    //@Autowired
+    private FriendMapper friendMapper;
+
+    @Override
+    public List<Friend> getFriendsByUserId(long userId) {
+        Map<String,Long> parm = new HashMap<>();
+        parm.put("userId",userId);
+        return friendMapper.allFriends(parm);
+    }
+}

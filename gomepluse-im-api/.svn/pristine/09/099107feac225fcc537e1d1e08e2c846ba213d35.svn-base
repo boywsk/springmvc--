@@ -1,0 +1,40 @@
+package com.gomeplus.im.api.test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
+public class UserTest extends ApiTester{
+	
+	 public static final String USER = "/user";
+	 public static final String TEST = "/test";
+	 
+	 
+	@Test
+	public void registerTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userName", "liuzhenhuan3");
+		params.put("phoneNumber", 12345678903L);
+		params.put("password", "123456");
+
+		String result = post(GOMEPLUS_IM_API + USER + "/registerUser.json",
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/registerUser.json", result);
+	}
+	@Test
+	public void loginTest() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", 0);
+		params.put("userName", "");
+		params.put("phoneNumber", 12345678900L);
+		params.put("password", "123456");
+		
+		String result = post(GOMEPLUS_IM_API + USER + "/login.json",
+				params);
+		outputResultInfo(GOMEPLUS_IM_API + USER + "/login.json", result);
+	}
+
+
+	
+}

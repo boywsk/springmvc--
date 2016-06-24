@@ -1,0 +1,519 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="/tags" prefix="date"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>IM-API-测试</title>
+    <script type="text/javascript" src="../js/jquery-1.2.6.pack.js"></script>
+
+    <link href="../css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <!-- script src="js/jquery-1.4.4.min.js" type="text/javascript"></script -->
+    <script src="../js/ligerUI/base.js" type="text/javascript"></script>
+    <script src="../js/ligerUI/ligerGrid.js" type="text/javascript"></script>
+    <script src="../js/ligerUI/ligerDrag.js" type="text/javascript"></script>
+    <script src="../js/ligerUI/ligerResizable.js" type="text/javascript"></script>
+    <style type="text/css">
+        body{margin:0; padding:0; font-size:12px; font-family:"宋体"; color:#000000; background-color:#f4f4f4;}
+        a {
+            text-decoration: none;
+        }
+        table {
+            border: 1px;
+            border-style: solid;
+            border-color: gray;
+
+            #font-family: "微软雅黑";
+            text-align: center;
+
+            margin: 0px;
+            padding: 0px;
+            border-collapse: collapse;
+            padding: 0px;
+        }
+        tr:first-child {
+            background-color: #AEC7E1;
+        }
+        tr {
+            cursor: default;
+        }
+        td {
+            #width: 100px;
+            height:25px;
+            border: 1px;
+            border-style: solid;
+            border-color: gray;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+        function search(){
+            var select = $("#select").val();
+            var jsonParms = $("#jsonParms").val();
+            var url = $("#url").val();
+            if(jsonParms == ''|| url == ''){
+                alert("请求地址或请求参数不能为空!");
+                return false;
+            }
+
+            $("#maingrid").ligerGrid({
+                columns : [
+                    {
+                        display : 'result',
+                        name : 'resultData',
+                        //width : 200,
+                        height : 1000
+//                        align : 'left'
+                    }],
+                width : '97%',
+//                height : '100%',
+                checkbox : false,
+                usePager : false,
+                rowHeight:60,
+                tree : {
+                    columnName : 'name'
+                },
+                url : "apiTest.do?select="+select+"&jsonParms="+jsonParms+"&url="+url+"&random=" + (new Date()).valueOf(),
+                method : "get",
+            });
+        }
+
+        $(document).ready(function() {
+        });
+    </script>
+</head>
+<body>
+<h3>IM-API-测试.</h3>
+<br/>
+<div>
+    <table>
+        <tr><td>
+            请求地址:<input type="text" name="url" id="url" value = "${url}" size="35"/>
+        </td></tr>
+        <tr><td>
+            测试项:
+            <select id="select" name="select">
+                <option value="group/addGroup.json" selected="selected">创建群组</option>
+                <option value="group/editGroup.json">修改群信息</option>
+                <option value="group/kickGroup.json">群组踢人</option>
+                <option value="group/quitGroup.json">退出群组</option>
+                <option value="group/joinGroup.json">加入群组</option>
+                <option value="group/inviteGroup.json">邀请入群</option>
+                <option value="group/auditMember.json">审核群成员</option>
+                <option value="group/editMemberMark.json">修改备注</option>
+                <option value="group/listGroupMember.json">获取群成员</option>
+                <option value="group/listGroup.json">获取群列表</option>
+                <option value="group/addManager.json">添加管理员</option>
+                <option value="group/delManager.json">删除管理员</option>
+                <option value="group/shieldGroup.json">设置屏蔽群消息</option>
+                <option value="group/sickiesGroup.json">设置群置顶</option>
+
+                <option value="friend/addFriend.json">添加好友</option>
+                <option value="friend/auditFriend.json">好友审核</option>
+                <option value="friend/delFriend.json">删除好友</option>
+                <option value="friend/editMark.json">对好友备注</option>
+                <option value="friend/listFriend.json">获取好友列表</option>
+
+                <option value="im/getQRCodeImage.json">获取二维码</option>
+
+                <option value="message/sendMessage.json">发送消息</option>
+                <option value="message/pushMessage.json">透传消息</option>
+            </select>
+        </td></tr>
+        <tr><td><textarea id="jsonParms" name="jsonParms" style="width:900px;height:200px;">请求参数(JSON格式)</textarea>
+        </td></tr>
+        <tr><td align="right">
+            <input type="button" onclick="search()" value="提交" />
+        </td></tr>
+    </table>
+</div>
+<br/>
+<br/>
+<h3>返回结果.</h3>
+<div id="maingrid"></div>
+<br/>
+<br/>
+<div>
+    <h3>请求参数示例.</h3>
+<table>
+    <tr><td>创建群组:</td>
+        <td>
+            {
+            "token": "23232323",
+            "uid": 1729,
+            "nickName": "hello1",
+            "name": "test123",
+            "desc": "群描述",
+            "avatar": "群头像的地址",
+            "isAudit": 1,
+            "capacity": 200,
+            "memberIds": [1911,1625]
+            }
+    </td></tr>
+
+    <tr><td>修改群信息:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":10000,
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "name":"把群修改得试试",
+            "desc":"设置一下群的描述",
+            "avater":"设置下群的头像",
+            "isAudit":1,
+            "capacity":200
+            }
+        </td></tr>
+
+    <tr><td>退出群组:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "groupId":"643542cea444450b9efed3ac75a64fca"
+            }
+        </td></tr>
+    <tr><td>群组踢人:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "memberIds":[1000007, 1000008],
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "content":"发表了违法的言论"
+            }
+        </td></tr>
+    <tr><td>加入群组:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "nickName":"tom",
+            "content":"请批准我加入",
+            "joinType":2
+            }
+        </td></tr>
+    <tr><td>邀请入群:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "nickName":"tom",
+            "content":"请加入该群",
+            "joinType":2,
+            "memberIds":[1000001,1000002,1000003,1000004,1000005,1000006]
+            }
+        </td></tr>
+    <tr><td>审核群成员:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "memberIds":[1000007],
+            "status":1
+            }
+        </td></tr>
+    <tr><td>修改备注:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "markedUid":1000007,
+            "mark":"213123123"
+            }
+        </td></tr>
+    <tr><td>获取群成员:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "status":1,
+            "time":1448444866911
+            }
+        </td></tr>
+    <tr><td>获取群列表:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "time":1448444866911
+            }
+        </td></tr>
+
+    <tr><td>添加管理员:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "memberIds":[1000007, 1000008]
+            }
+        </td></tr>
+    <tr><td>删除管理员:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "memberIds":[1000007, 1000008]
+            }
+        </td></tr>
+    <tr><td>设置屏蔽群消息:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "isShield":1
+            }
+        </td></tr>
+
+    <tr><td>设置群置顶:</td>
+        <td>
+            {
+            "token":"213123123",
+            "groupId":"643542cea444450b9efed3ac75a64fca",
+            "uid":1000006,
+            "stickies":1
+            }
+        </td></tr>
+
+    <tr><td>添加好友:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "nickName":"tom",
+            "friendUid":1000007,
+            "content":"我是tom"
+            }
+        </td></tr>
+
+    <tr><td>好友审核:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "nickName":"213123123",
+            "friendUid":1000007,
+            "status":2,
+            "content":"你是？"
+            }
+        </td></tr>
+
+    <tr><td>删除好友:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "friendUid":1000007
+            }
+        </td></tr>
+    <tr><td>对好友备注:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "friendUid":1000007,
+            "mark":"213123123"
+            }
+        </td></tr>
+    <tr><td>获取好友列表:</td>
+        <td>
+            {
+            "token":"213123123",
+            "uid":1000006,
+            "status":1,
+            "time":1448433659001
+            }
+        </td></tr>
+    <tr><td>获取二维码:</td>
+        <td>
+            {
+            "token":"213123123",
+            "type":1,
+            "id":"5656c5fec0b5fa1d3cfcf130"
+            }
+        </td></tr>
+
+    <tr><td>发送消息:</td>
+        <td>
+            {
+            "msgType":1,
+            "msgBody":"你好",
+            "senderId":285,
+            "senderName":"john",
+            "senderRemark":"大卫",
+            "groupId":"5656c5fec0b5fa1d3cfcf130",
+            "groupType":1,
+            "groupName":"群名",
+            "msgUrl":"http://localhost/message/msg.txt",
+            "msgAttch":[{"id":"1",
+            "attachName":"附件名称",
+            "attachType":1,
+            "attachUrl":"http://localhost/attach.png",
+            "attachSize":1024,
+            "attachPlaytime":60,
+            "extra":"extra"
+            }],
+            "card":{"uid":10000,
+            "cardType":2,
+            "nickName":"john",
+            "name":"账号(唯一性)",
+            "avatar":"头像地址"
+            },
+            "share":{"title":"title",
+            "content":"content",
+            "imgUrl":"url",
+            "newsUrl":"url",
+            "from":"新闻来源",
+            "time":1450840923000,
+            "extra":"扩展"
+            },
+            "goods":{"id":10000,
+            "name":"商品名称",
+            "price":10.99,
+            "currencyType":0,
+            "imgUrl":["url1","url2"],
+            "goodsUrl":"goodsUrl",
+            "discountType":0,
+            "extra":"extra"
+            },
+            "shop":{"id":10000,
+            "name":"店铺名称",
+            "imgUrl":["url1","url2"],
+            "shopUrl":"url",
+            "discountType":0,
+            "extra":"extra"
+            },
+            "topic":{"id":10000,
+            "topicType":1,
+            "title":"标题",
+            "content":"内容",
+            "createTime":1450840923000,
+            "goods":[{"id":10000,
+            "name":"商品名称",
+            "price":10.99,
+            "currencyType":0,
+            "imgUrl":["url1","url2"],
+            "goodsUrl":"goodsUrl",
+            "discountType":0,
+            "extra":"extra"
+            }],
+            "shop":[{"id":10000,
+            "name":"店铺名称",
+            "imgUrl":["url1","url2"],
+            "shopUrl":"url",
+            "discountType":0,
+            "extra":"extra"
+            }],
+            "msgAttch":[{"id":"1",
+            "attachName":"附件名称",
+            "attachType":1,
+            "attachUrl":"http://localhost/attach.png",
+            "attachSize":1024,
+            "attachPlaytime":60,
+            "extra":"extra"
+            }],
+            "extra":"extra"
+            },
+            "extra":"extra"
+            }
+        </td></tr>
+
+    <tr><td>推送消息:</td>
+        <td>
+            {
+            "msgType":1,
+            "msgBody":"你好",
+            "senderId":285,
+            "senderName":"john",
+            "senderRemark":"大卫",
+            "groupId":"5656c5fec0b5fa1d3cfcf130",
+            "groupType":1,
+            "groupName":"群名",
+            "msgUrl":"http://localhost/message/msg.txt",
+            "msgAttch":[{"id":"1",
+            "attachName":"附件名称",
+            "attachType":1,
+            "attachUrl":"http://localhost/attach.png",
+            "attachSize":1024,
+            "attachPlaytime":60,
+            "extra":"extra"
+            }],
+            "card":{"uid":10000,
+            "cardType":2,
+            "nickName":"john",
+            "name":"账号(唯一性)",
+            "avatar":"头像地址"
+            },
+            "share":{"title":"title",
+            "content":"content",
+            "imgUrl":"url",
+            "newsUrl":"url",
+            "from":"新闻来源",
+            "time":1450840923000,
+            "extra":"扩展"
+            },
+            "goods":{"id":10000,
+            "name":"商品名称",
+            "price":10.99,
+            "currencyType":0,
+            "imgUrl":["url1","url2"],
+            "goodsUrl":"goodsUrl",
+            "discountType":0,
+            "extra":"extra"
+            },
+            "shop":{"id":10000,
+            "name":"店铺名称",
+            "imgUrl":["url1","url2"],
+            "shopUrl":"url",
+            "discountType":0,
+            "extra":"extra"
+            },
+            "topic":{"id":10000,
+            "topicType":1,
+            "title":"标题",
+            "content":"内容",
+            "createTime":1450840923000,
+            "goods":[{"id":10000,
+            "name":"商品名称",
+            "price":10.99,
+            "currencyType":0,
+            "imgUrl":["url1","url2"],
+            "goodsUrl":"goodsUrl",
+            "discountType":0,
+            "extra":"extra"
+            }],
+            "shop":[{"id":10000,
+            "name":"店铺名称",
+            "imgUrl":["url1","url2"],
+            "shopUrl":"url",
+            "discountType":0,
+            "extra":"extra"
+            }],
+            "msgAttch":[{"id":"1",
+            "attachName":"附件名称",
+            "attachType":1,
+            "attachUrl":"http://localhost/attach.png",
+            "attachSize":1024,
+            "attachPlaytime":60,
+            "extra":"extra"
+            }],
+            "extra":"extra"
+            },
+            "extra":"extra"
+            }
+        </td></tr>
+
+</table>
+</div>
+</body>
+</html>

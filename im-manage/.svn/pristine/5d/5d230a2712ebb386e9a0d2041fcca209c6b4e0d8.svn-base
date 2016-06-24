@@ -1,0 +1,38 @@
+package cn.com.gome.manage.redis;
+
+import cn.com.gome.manage.global.Global;
+import cn.com.gome.manage.utils.JedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+
+import java.util.Map;
+
+/**
+ * 用户在线信息redis操作工具类
+ */
+public class UserRedisService {
+	Logger log = LoggerFactory.getLogger(UserRedisService.class);
+	
+	/**
+	 * 根据用户id获取用户在线数据
+	 * @param uid
+	 * @return
+	 */
+	public Map<String, String> listUserRsp(long uid) {
+		JedisUtil util = JedisUtil.getInstance();
+		Jedis jedis = util.getJedis();
+		try {
+			jedis.select(Global.REDIS_INDEX);
+			Map<String, String> map = jedis.hgetAll(String.valueOf(uid));
+			return map;
+		} catch(Exception e) {
+			util.releaseJedis(jedis);
+			log.error("listUserRsp:", e);
+		} finally {
+			util.returnJedis(jedis);
+		}
+
+		return null;
+	}
+}

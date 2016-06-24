@@ -1,0 +1,13 @@
+package com.gomeplus.im.manage.service;
+
+import com.gomeplus.im.manage.model.User;
+
+/**
+ * Created by wangshikai on 2016/6/3.
+ */
+public interface UserService {
+
+    public User getUserByName(String userName);
+
+    public User getUserByPhone(long phoneNum);
+}

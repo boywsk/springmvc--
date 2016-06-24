@@ -1,0 +1,187 @@
+package cn.com.gome.manage.controller;
+
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.alibaba.fastjson.JSON;
+
+import cn.com.gome.manage.pageSupport.PageInfo;
+import cn.com.gome.manage.pageSupport.PageInfoFactory;
+import cn.com.gome.manage.pojo.Menu;
+import cn.com.gome.manage.pojo.User;
+import cn.com.gome.manage.pojo.UserPermit;
+import cn.com.gome.manage.service.UserService;
+import cn.com.gome.manage.utils.ParamUtil;
+
+@Controller
+@RequestMapping("/user")
+public class UserController {
+	@Autowired
+	private UserService userService;
+	
+	@RequestMapping("listUser")
+	public String listForum(HttpServletRequest request, Model model){
+		int pageNo = ParamUtil.getIntParams(request, "pageNo", 1);
+		String userName = ParamUtil.getParams(request, "userName", null);
+		String name = ParamUtil.getParams(request, "name", null);
+		PageInfo pageInfo = PageInfoFactory.getPageInfo(pageNo);
+		List<User> list = userService.listUser(pageInfo, userName, name);
+		
+		model.addAttribute("users", list);
+		model.addAttribute("pageInfo", pageInfo);
+		
+		return "user/listUser";
+	}
+	
+	@RequestMapping("preAddUser")
+	public String preAddUser(HttpServletRequest request, Model model) {
+		String userName = ParamUtil.getParams(request, "userName", null);
+		if(userName != null) {
+			User user = userService.getUserByUserName(userName);
+			model.addAttribute("user", user);
+		}
+		
+		return "user/addUser";
+	}
+	
+	@RequestMapping(value="addUser", method = RequestMethod.POST)
+	public String addUser(HttpServletRequest request, Model model) {
+		long id = ParamUtil.getLongParams(request, "id", -1);
+		String userName = request.getParameter("userName");
+		String name = request.getParameter("name");
+		String password = request.getParameter("password");
+		
+		User user = new User();
+		user.setName(name);
+		user.setPassword(password);
+		user.setUserName(userName);
+		user.setId(id);
+		if(id <= 0) {
+			User user_old = userService.getUserByUserName(userName);
+			if(user_old != null) {
+				model.addAttribute("error", "用户名已存在！");
+				model.addAttribute("user", user);
+				return "user/addUser";
+			}
+			user.setCreateTime(System.currentTimeMillis());
+			userService.saveUser(user);
+		} else {
+			userService.updateUserByid(user);
+		}
+		
+		return "redirect:listUser.do";
+	}
+	
+	@RequestMapping(value="delUser", method = RequestMethod.GET)
+	public String delUser(HttpServletRequest request, Model model) {
+		String ids = ParamUtil.getParams(request, "ids", "");
+		userService.delUser(ids);
+		
+		return "redirect:listUser.do";
+	}
+	
+	@RequestMapping(value="preEditPassword", method = RequestMethod.GET)
+	public String preEditPassword(HttpServletRequest request, Model model) {
+		return "user/editPassword";
+	}
+	
+	@RequestMapping(value="editPassword", method = RequestMethod.POST)
+	public String editPassword(HttpServletRequest request, Model model) {
+		String password = ParamUtil.getParams(request, "password", null);
+		String newPassword = ParamUtil.getParams(request, "newPassword", null);
+		
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("loginInfo");
+		
+		if(!user.getPassword().equals(password)) {
+			model.addAttribute("error", "旧密码不正确！");
+			model.addAttribute("password", password);
+			model.addAttribute("newPassword", newPassword);
+			
+			return "user/editPassword";
+		} else {
+			user.setPassword(newPassword);
+			userService.updateUserByid(user);
+			session.removeAttribute("loginInfo");
+		}
+		
+		return "redirect:../index.jsp";
+	}
+	
+	@RequestMapping(value="listMenu", method = RequestMethod.GET)
+	public void listMenu(HttpServletRequest request, HttpServletResponse response) {
+		long uid = ParamUtil.getLongParams(request, "uid", 0);
+		PrintWriter out = null;
+		List<Long> userMemus = userService.listUserMenuId(uid);		
+		List<Menu> list = userService.getMenuByPid(0L);
+		for(Menu menu : list) {
+			if(userMemus.indexOf(menu.getId()) >= 0) {
+				menu.setSelected(1);
+			}
+			//List<Menu> subMenus = new ArrayList<Menu>();
+			List<Menu> subList = userService.getMenuByPid(menu.getId());
+			for(Menu child : subList) {
+				if(userMemus.indexOf(child.getId()) >= 0) {
+					child.setSelected(1);
+				} 
+			}
+			menu.setChildren(subList);
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", list);
+		
+		String json = JSON.toJSONString(map);
+		try {
+			response.setHeader("Content-type", "text/plain;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("application/json");
+			response.setContentLength(json.getBytes("UTF-8").length);
+			out = response.getWriter();
+			//out.write("var TreeDeptData = ");
+			out.write(json);
+			out.flush();
+		} catch (Exception e) {
+			//log.error("listSquare:", e);
+		} finally {
+			if( out != null) {
+				out.close();
+			}
+		}
+	}
+	
+	@RequestMapping(value="preAddPermit", method = RequestMethod.GET)
+	public String preAddPermit(HttpServletRequest request, Model model) {
+		long uid = ParamUtil.getLongParams(request, "uid", 0);
+		
+		model.addAttribute("uid", uid);
+		
+		return "user/addPermit";
+	}
+	
+	@RequestMapping(value="addPermit", method = RequestMethod.POST)
+	public String addPermit(HttpServletRequest request, Model model) {
+		String menusIds = ParamUtil.getParams(request, "menusIds", "");
+		long uid = ParamUtil.getLongParams(request, "uid", 0);
+		userService.delUserPermit(uid);
+		String[] ids = menusIds.split(",");
+		for(String id : ids) {
+			UserPermit userPermit = new UserPermit();
+			userPermit.setUid(uid);
+			userPermit.setMenuId(Long.parseLong(id));
+			userService.saveUserPermit(userPermit);
+		}
+		
+		return "redirect:preAddPermit.do?uid=" + uid;
+	}
+}

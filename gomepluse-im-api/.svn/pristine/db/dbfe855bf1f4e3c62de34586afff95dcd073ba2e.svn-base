@@ -1,0 +1,42 @@
+package com.gomeplus.im.api.service;
+
+import com.gomeplus.im.api.request.ReqFriend;
+import com.gomeplus.im.api.request.response.ResultModel;
+
+public interface FriendService {
+	
+	/**
+	 * 创建好友
+	 * @param reqFriend
+	 * @return
+	 */
+  public ResultModel<Object> addFriend(ReqFriend reqFriend);
+	/**
+	 * 修改好友
+	 * @param reqFriend
+	 * @return
+	 */
+  public ResultModel<Object> updateMark(ReqFriend reqFriend);
+	/**
+	 * 获得好友
+	 * @param reqFriend
+	 * @return
+	 */
+  public ResultModel<Object> getFriend(ReqFriend reqFriend);
+	/**
+	 * 好友列表
+	 * @param reqFriend
+	 * @return
+	 */
+  public ResultModel<Object> listFriend(ReqFriend reqFriend);
+	/**
+	 * 删除好友
+	 * @param reqFriend
+	 * @return
+	 */
+  public ResultModel<Object> delFriend(ReqFriend reqFriend);
+    /**
+     * 好友申请审核
+     */
+  public ResultModel<Object> auditFriend(ReqFriend reqFriend);
+}

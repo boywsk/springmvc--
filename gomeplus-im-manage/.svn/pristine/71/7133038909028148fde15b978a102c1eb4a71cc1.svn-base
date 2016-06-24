@@ -1,0 +1,4 @@
+#mysql 配置
+mysql_url=jdbc:mysql://10.125.31.220:3306/im_manage?useUnicode=true&amp;characterEncoding=utf-8
+mysql_username=admin_develop
+mysql_password=admin6E85E1357Adev
